@@ -6,3 +6,5 @@ Environment set up:
 
 Source reference:
 Favicon: https://favicon.io/favicon-generator/
+
+Please note that we are still working on the user action, the file uploaded are just partly finished
