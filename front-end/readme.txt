@@ -1,5 +1,5 @@
 Environment set up:
-1. cd[/path_to]/demo-app
+1. cd[/path_to]/front-end
 2. npm install react react-dom react-scripts
 3. npm install react-router-dom
 4. npm start
