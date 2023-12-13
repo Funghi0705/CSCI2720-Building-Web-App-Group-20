@@ -128,6 +128,7 @@
                       <Link to="/event"><li>Event</li></Link>
                       <Link to="/map"><li>Map</li></Link>
                       <Link to="/favour"><li>Favourite</li></Link>
+                      <Link to="/backend"><li>Backend Testing</li></Link>
                     </ul>
                   </nav>
                 </div>
@@ -139,6 +140,7 @@
                   <Route path="/loc/:locId" element={<SingleLoc loc={this.state.loc} event={this.state.event} updateFavloc={this.updateFavloc}/>} />
                   <Route path="/favour" element={<Favour data={this.state.favloc} updateFavloc={this.updateFavloc}/>} />
                   <Route path="/event" element={<Event event={this.state.event} loc={this.state.loc}/>} />
+                  <Route path="/backend" element={<Backend />} />
                   <Route path="*" element={<NoMatch />} />
                 </Routes>
               </BrowserRouter>
@@ -716,6 +718,60 @@
                   <h1 className="display-4 text-center">{this.props.name}</h1>
               </header>
           );
+      }
+    }
+
+    // The backend team use it for testing
+    class Backend extends React.Component {
+      constructor(props) {
+        super(props);
+        this.state = {
+          output: ''
+        };
+      }
+
+      render() {
+        async function handleSubmit(event) {
+          event.preventDefault();
+          const username = document.querySelector('#username').value;
+            const password = document.querySelector('#password').value;
+            const isAdmin = document.querySelector('#isAdmin').checked;
+            const data = {
+              username: username,
+              password: password,
+              isAdmin: isAdmin
+            };
+  
+            const response = await fetch('http://localhost:3000/account/create', {
+              method: "POST",
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(data)
+            });
+  
+            this.setState({output: response});
+        };
+
+        return (
+          <div>
+            <form id="createDocument" onSubmit={handleSubmit}>
+              <label for="username">User Name:</label>
+              <input type="text" id="username" name='username' />
+              <br />
+              <label for="password">Password:</label>
+              <input type="text" id="password" name='password' />
+              <br />
+              <label for="isAdmin">Login as admin?</label>
+              <input type="checkbox" id="isAdmin" name='isAdmin' />
+              <br />
+              <input type="submit" value="Submit"/>
+            </form>
+
+            <div>
+              <p>Here is the output:</p>
+              <pre id='output'>{this.state.output}</pre>
+            </div>
+          </div>
+        );
       }
     }
     
