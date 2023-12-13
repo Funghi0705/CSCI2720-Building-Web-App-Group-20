@@ -29,6 +29,7 @@
       useParams,
       useLocation,
     } from 'react-router-dom';
+    import Login from "./login.js"
 
     // Global Var for class Map
     const customIcon = new Icon({
@@ -52,15 +53,7 @@
     ]
 
     let lastUpdate = "6/12/2023 9:30";
-
-    class Login extends React.Component{
-      render(){
-        return (
-          // Fred will do this part
-          <p></p>
-        )
-      }
-    }
+    let loginState = false;
 
     class Logout extends React.Component {
       logout = () => {
@@ -93,7 +86,8 @@
           event: event,
           loc: loc,
           favloc: favloc,
-          lastUpdate: lastUpdate
+          lastUpdate: lastUpdate,
+          login: loginState,
         };
       }
 
@@ -105,6 +99,9 @@
         // Add a function to handle first load to retrieve xml here
     
         // Check if the event data is loaded
+        if (this.state.login == false) {
+          return <Login />
+        }
         if (this.state.lastUpdate != null) {
           // Check if the user is admin or not
           if (this.state.isAdmin === true) {
@@ -164,7 +161,7 @@
         return (
           <>
           <section>
-            <div class="container">
+            <div class="container" style={{borderRadius:20, borderColor: 'black', border: "solid"}}>
               <div class="row">
                 <h3>Welcome to the Cultural Programmes Collection Website <i class="bi bi-calendar-check"></i></h3>
                 <p>
