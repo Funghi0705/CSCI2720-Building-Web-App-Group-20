@@ -7,26 +7,33 @@ app.use(express.json());
 
 const mongoose = require('mongoose');
 
-// The Schema definitions
 
-// schema for account
-// used for login
+// Schema Definition
 const AccountSchema = mongoose.Schema({
-  username: {
+  ID: {
     type: String,
     required: true,
+    unique: true
   },
   password: {
     type: String,
+    required: true
+  },
+  isAdmin: {
+    type: Boolean,
+    required: true
+  },
+  userID: {
+    type: Number,
     required: true,
+    unique: true
   }
 });
 
-// schema for user
 const UserSchema = mongoose.Schema({
-  userID: {
+  ID: {
     type: Number,
-    required: [true, "userID is required"],
+    required: true,
     unique: true
   },
   commentIDs: [{
@@ -36,14 +43,13 @@ const UserSchema = mongoose.Schema({
   favouriteIDs: [{
     type: Number,
     unique: true
-  }],
+  }]
 });
 
-// schema for events
 const EventSchema = mongoose.Schema({
-  eventID: {
+  ID: {
     type: Number,
-    required: [true, "eventID is required"],
+    required: true,
     unique: true
   },
   name: {
@@ -54,20 +60,20 @@ const EventSchema = mongoose.Schema({
     type: Number,
     required: true,
     validate: {
-      validator: function (value) {
-          return value > 0;
-      },
-      message: () => "Please enter a valid quota",
+        validator: function (value) {
+            return value > 0;
+        },
+        message: () => "Please enter a valid quota",
       }
   },
   quota: {
     type: Number,
     required: true,
     validate: {
-    validator: function (value) {
-        return value > 0;
-    },
-    message: () => "Please enter a valid quota",
+      validator: function (value) {
+          return value > 0;
+      },
+      message: () => "Please enter a valid quota",
     }    
   },
   // An array of ObjectId references that refer to documents in the Location collection
@@ -75,9 +81,9 @@ const EventSchema = mongoose.Schema({
 });
 
 const LocationSchema = mongoose.Schema({
-    locationID: {
+    ID: {
         type: Number,
-        required: [true, "LocID is required"],
+        required: true,
         unique: true
     },
     name: {
@@ -87,10 +93,10 @@ const LocationSchema = mongoose.Schema({
     quota: {
         type: Number,
         validate: {
-        validator: function (value) {
-            return value > 0;
-        },
-        message: () => "Please enter a valid quota",
+          validator: function (value) {
+              return value > 0;
+          },
+          message: () => "Please enter a valid quota",
         }    
     },
     eventID: { type: Number },
@@ -99,9 +105,9 @@ const LocationSchema = mongoose.Schema({
 });
 
 const CommentSchema = mongoose.Schema({
-  commentID: {
+  ID: {
       type: Number,
-      required: [true, "LocID is required"],
+      required: true,
       unique: true
   },
   content: {
@@ -114,15 +120,15 @@ const CommentSchema = mongoose.Schema({
   },
   locationID: {
     type: Number,
-    required: [true, "LocID is required"],
+    required: true,
     unique: true
   }
 });
 
 const FavouriteSchema = mongoose.Schema({
-  favouriteID: {
+  ID: {
       type: Number,
-      required: [true, "LocID is required"],
+      required: true,
       unique: true
   },
   author: {
@@ -131,13 +137,13 @@ const FavouriteSchema = mongoose.Schema({
   },
   locationID: {
     type: Number,
-    required: [true, "LocID is required"],
+    required: true,
     unique: true
   }
 });
 
 
-// Schema Model initialization
+// Collection initialization
 const Account = mongoose.model("Account", AccountSchema);
 const User = mongoose.model("User", UserSchema);
 const Event = mongoose.model("Event", EventSchema);
@@ -145,17 +151,28 @@ const Location = mongoose.model("Location", LocationSchema);
 const Comment = mongoose.model("Comment", CommentSchema);
 const Favourite = mongoose.model("Favourite", FavouriteSchema);
 
+
 // Function definition
-async function displayAll(SchemaModel, req, res) {
-  try{
-    const allDocuments = await SchemaModel.find();
-    res.setHeader('Content-Type', 'text/plain');
-    res.send(allDocuments);
-  }
-  catch (error) {
-    res.status(404);
-    res.send(`Error getting Documents.`);
-  }
+
+
+
+// Constant Definition
+const SchemaToCollection = {
+  account: Account,
+  user: User,
+  event: Event,
+  location: Location,
+  comment: Comment,
+  favourite: Favourite
+};
+
+const SchemaToID = {
+  account: 'username',
+  user: 'userID',
+  event: 'eventID',
+  location: 'locationID',
+  comment: 'commentID',
+  favourite: 'favouriteID'
 };
 
 // connect to MongoDB
@@ -170,31 +187,101 @@ db.once('open', async function () {
   console.log("Connection is open...");
 
   // CRUD - Create
+  // Create one document for the specified Collection
+  app.post('/:schema/create', async (req, res) => {
+    try{
+      const Collection = SchemaToCollection[req.params.schema];
+      const newDocument = new Collection(req.body);
+      await newDocument.save();
+
+      res.send();
+    }
+    catch (error) {
+      res.send(error.message);
+    }
+  });
+
 
   // CRUD - Read
+  // Read all documents from the specified Collection
+  app.get('/:schema', async (req, res) => {
+    try{
+      const Collection = SchemaToCollection[req.params.schema];
+      const allDocuments = await Collection.find();
+      res.setHeader('Content-Type', 'text/plain');
+      res.send(allDocuments);
+    }
+    catch (error) {
+      res.status(404);
+      res.send(`Error getting Documents.`);
+    }
+  });
 
-  // Read All
-  // get all documents from Account Collection
-  app.get('/account', async (req, res) => displayAll(Account, req, res));
+  // Read the requested document from the specified Collection
+  app.post('/:schema/find', async (req, res) => {
+    try{
+      const criterion = req.body;
+      const Collection = SchemaToCollection[req.params.schema];
+      const requestedDocuments = await Collection.find(criterion);
+      res.setHeader('Content-Type', 'text/plain');
+      res.send(requestedDocuments);
+    }
+    catch (error) {
+      res.status(404);
+      res.send(`Error getting Documents.`);
+    }
+  });
 
-  // get all documents from User Collection
-  app.get('/user', async (req, res) => displayAll(User, req, res));
+  // Check the ID and password against the database
+  // If valid, return the user ID
+  // Otherwise, return the reason for unsuccessful login
+  app.post('/login', async (req, res) => {
+    try{
+      const ID = req.body.ID;
+      const password = req.body.password;
+      
+      const account = await Account.findOne({ID: ID});
+      if (!account) {
+        throw new Error('User Name does not exist.');
+      }
+      if (account.password !== password) {
+        throw new Error('Incorrect password.');
+      }
 
-  // get all documents from Event Collection
-  app.get('/event', async (req, res) => displayAll(Event, req, res));
-
-  // get all documents from Location Collection
-  app.get('/location', async (req, res) => displayAll(Location, req, res));
-
-  // get all documents from Comment Collection
-  app.get('/comment', async (req, res) => displayAll(Comment, req, res));
-
-  // get all documents from Favourite Collection
-  app.get('/favourite', async (req, res) => displayAll(Favourite, req, res));
-  
+      res.setHeader('Content-Type', 'text/plain');
+      res.send(account.userID);
+    }
+    catch (error) {
+      res.status(404);
+      res.send(error.message);
+    }
+  });
 
   // CRUD - Update
 
+  // Update data for an account
+  app.post('/update/:schema', async (req, res) => {
+    try{
+      const Collection = SchemaToCollection[req.params.schema];
+      const findID = req.body.ID;
+      console.log('Update ' + req.params.schema);
+      Collection.findOneAndUpdate(
+        {ID: { $eq: findID }},
+        {$set: req.body}
+      )
+      .then((data) => {
+        console.log("Your" + req.params.schema + "is updated");
+      })
+      .catch((error) => {
+        console.log("Failed");
+        throw new Error("Failed");
+      });
+    }
+    catch (error) {
+      res.status(404);
+      res.send(error.message);
+    }
+  });
 
 
 
@@ -202,7 +289,19 @@ db.once('open', async function () {
 
 
   // CRUD - Delete
-
+  app.post('/:schema/delete', async (req, res) => {
+    try{
+      const criterion = req.body;
+      const Collection = SchemaToCollection[req.params.schema];
+      await Collection.findOneAndDelete(criterion);
+      res.setHeader('Content-Type', 'text/plain');
+      res.send(requestedDocuments);
+    }
+    catch (error) {
+      res.status(404);
+      res.send(`Error deleting Documents.`);
+    }
+  });
 
 
 
