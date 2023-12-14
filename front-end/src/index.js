@@ -54,14 +54,19 @@
     ]
 
     let lastUpdate = "6/12/2023 9:30";
-    let loginState = false;
+    let loginState = true;
 
     class Logout extends React.Component {
-
+      logout = () => {
+        if (window.confirm("You are logging out. Are you sure?")) {
+          this.props.onLogout();
+        }
+      }
+    
       render() {
         return (
           <div>
-            <div id="topright">
+            <div id="logout">
               <i>Welcome, {this.props.name}</i>
               <button type="button" id="logout" className="btn" onClick={this.props.logout}>
                 Log out
@@ -92,13 +97,9 @@
         this.setState({ favloc: updatedFavloc });
       };
 
-      updateLogin = (login, isAdmin) => {
-        this.setState({ login: login, isAdmin, isAdmin })
-      }
-
-      logout = () => {
+      handleLogout = () => {
         this.setState({ login: false });
-      }
+      };
 
       render(){
         // Add a function to handle first load to retrieve xml here
@@ -118,8 +119,8 @@
             console.log("login as user");
             return(
               <BrowserRouter>
-                <Logout name = {this.state.username} logout = {this.logout}/>
-                <Title name = {this.state.username}/>
+                <Logout name={this.state.username} onLogout={this.handleLogout} />
+                <Title />
                 <div>
                   <nav>
                     <ul>
@@ -137,7 +138,7 @@
                   <Route path="/" element={<Home lastUpdate={this.state.lastUpdate}/>} />
                   <Route path="/loc" element={<Location data={this.state.loc}/>} />
                   <Route path="/map" element={<Map data={this.state.loc}/>} />
-                  <Route path="/loc/:locId" element={<SingleLoc loc={this.state.loc} event={this.state.event} updateFavloc={this.updateFavloc}/>} />
+                  <Route path="/loc/:locId" element={<SingleLoc loc={this.state.loc} event={this.state.event} favloc={this.state.favloc} updateFavloc={this.updateFavloc} username={this.state.username}/>} />
                   <Route path="/favour" element={<Favour data={this.state.favloc} updateFavloc={this.updateFavloc}/>} />
                   <Route path="/event" element={<Event event={this.state.event} loc={this.state.loc}/>} />
                   <Route path="/backend" element={<Backend />} />
@@ -166,7 +167,7 @@
         return (
           <>
           <section>
-            <div class="container" style={{borderRadius:20, borderColor: 'black', border: "solid"}}>
+            <div class="container">
               <div class="row">
                 <h3>Welcome to the Cultural Programmes Collection Website <i class="bi bi-calendar-check"></i></h3>
                 <p>
@@ -264,17 +265,14 @@
       render() {
         const { output, sortevent } = this.state;
         return (
-          <section>
-            <div class="container">
-              <div class="row">
+          <div>
+              <section>
                 <div>
                   <label for="searchInput">Search with keyword: </label>
                   <input type="text" id="searchInput" placeholder="Enter keyword"/>
                   <input type="button" value="Search" onClick={this.handleSearch}/>
                 </div>
-                <br />
-                <br />
-                <hr />
+                <hr/>
                 <fieldset>
                   <legend>Sort by number of events:</legend>
                   <div>
@@ -284,7 +282,7 @@
                       name="sorting"
                       value="nosort"
                       onChange={this.handleSort}
-                      checked={this.state.sortevent === 'nosort'}
+                      checked={sortevent === 'nosort'}
                     />
                     <label htmlFor="nosorting">No sorting</label>
                   </div>
@@ -295,7 +293,7 @@
                       name="sorting"
                       value="ascending"
                       onChange={this.handleSort}
-                      checked={this.state.sortevent === 'ascending'}
+                      checked={sortevent === 'ascending'}
                     />
                     <label htmlFor="ascending">Ascending</label>
                   </div>
@@ -306,12 +304,12 @@
                       name="sorting"
                       value="descending"
                       onChange={this.handleSort}
-                      checked={this.state.sortevent === 'descending'}
+                      checked={sortevent === 'descending'}
                     />
                     <label htmlFor="descending">Descending</label>
                   </div>
                 </fieldset>
-                <hr />
+                <hr/>
                 <table>
                   <thead>
                     <tr>
@@ -323,13 +321,12 @@
                     {output.map((file, index) => <TRL i={index} key={index} data={output} />)}
                   </tbody>
                 </table>
-              </div>
+              </section>
             </div>
-          </section>
         );
       }
     }
-    
+
     // TRL: Table Row for Location, handle the dynamic content of the table 
     class TRL extends React.Component {
       render() {
@@ -362,7 +359,8 @@
       render() {
         const { selectedMarker } = this.state;
         return (
-          <div>
+          <section id="maps">
+          <div id="map">
             <MapContainer center={[this.props.data[0].latitude, this.props.data[0].longtitude]} zoom={17}>
               <TileLayer
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -380,6 +378,46 @@
               ))}
             </MapContainer>
           </div>
+          </section>
+        );
+      }
+    }
+
+    class Singlemap extends React.Component {
+      constructor(props) {
+        super(props);
+        this.state = {
+          selectedMarker: null
+        };
+      }
+    
+      handleMarkerClick = (marker) => {
+        this.setState({ selectedMarker: marker });
+      };
+    
+      render() {
+        const { selectedMarker } = this.state;
+        return (
+
+          <div id="singlemap">
+            <MapContainer center={[this.props.data[0].latitude, this.props.data[0].longtitude]} zoom={17}>
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+              {this.props.data.map((marker) => (
+                <Marker
+                  key={marker.locId}
+                  position={[marker.latitude, marker.longtitude]} 
+                  icon={selectedMarker === marker ? customIcon : customIcon}
+                  eventHandlers={{ click: () => this.handleMarkerClick(marker) }}
+                >
+                  <Popup><Link to={"/loc/" + marker.locId}>{marker.name}</Link></Popup> 
+                </Marker>
+              ))}
+            </MapContainer>
+          </div>
+
         );
       }
     }
@@ -432,8 +470,12 @@
             </td>
             <td>{this.props.data[i].noofevent}</td>
             <td>
-              <button className="btn btn-danger btn-xs" onClick={this.deleteRow}>
-                Remove
+              <button 
+                  type="button"
+                  className="btn btn-link x-circle"
+                  onClick={this.deleteRow}
+                >
+                  <i class="bi bi-x-circle-fill" style={{ color: 'red' }}></i>
               </button>
             </td>
           </tr>
@@ -451,6 +493,24 @@
         (event) => event.venue === selectedLocation.name
       );
     
+      // Check if the location is the user's favourite location, and allow user's to add/remove it to/from the favourite location
+      const isFavorite = props.favloc.some(
+        (favLocation) => favLocation.locId === selectedLocation.locId
+      );
+
+      const toggleFavorite = () => {
+        if (isFavorite) {
+          const updatedFavloc = props.favloc.filter(
+            (favLocation) => favLocation.locId !== selectedLocation.locId
+          );
+          props.updateFavloc(updatedFavloc);
+        } else {
+          const newFavloc = [...props.favloc, selectedLocation];
+          props.updateFavloc(newFavloc);
+        }
+        console.log(props.favloc);
+      };
+    
       const [comment, setComment] = useState("");
       const [comments, setComments] = useState([]);
     
@@ -462,7 +522,7 @@
         if (comment.trim() !== "") {
           const newComment = {
             id: comments.length + 1,
-            username: username,
+            username: props.username,
             comment: comment.trim()
           };
     
@@ -470,81 +530,96 @@
           setComment(""); // Clear the comment input field after adding the comment
         }
       };
-
-          return (
-            <section>
-              <div class="container">
-                <div class="row">
-                  {/* Location Details */}
-                  <h2>{selectedLocation.name}</h2>
-                  <p>No. of Events: {selectedLocation.noofevent}</p>
-                  <Map data={[selectedLocation]} />
-                  {/* Add/Remove a button to add location favor loc, next to he name have a filled/unfilled heart*/}
-                  {/* Event Details */}
-                  <h2>Event holding:</h2>
-                  <table>
-                    <thead>
-                      <tr>
-                        <th scope="col">Event</th>
-                        <th scope="col">Venue</th>
-                        <th scope="col">Date/Time</th>
-                        <th scope="col">Description</th>
-                        <th scope="col">Presenter</th>
-                        <th scope="col">Price (HK$)</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredEvents.map((event, index) => (
-                        <TRS key={index} event={event} />
-                      ))}
-                    </tbody>
-                  </table>
-        
-                  {/* User Comments */}
-                  <h3>Comments:</h3>
-                  <section id="comment">
-                    <div id="comment_container">
-                      <div id="comments">
-                        <div id="c1001" className="d-flex">
-                          <div className="flex-shrink-0"></div>
-                          <div className="flex-grow-1">
-                            <h5>1155158054@link.cuhk.edu.hk</h5>
-                            <p>CSCI2720 is Good!</p>
-                          </div>
+    
+      return (
+        <section>
+          <div className="container">
+            <div className="row">
+              <div className="d-flex align-items-center">
+                <h2>{selectedLocation.name}</h2>
+                <button
+                  type="button"
+                  className="btn btn-link heart-button"
+                  onClick={toggleFavorite}
+                >
+                  {isFavorite ? (
+                    <i className="bi bi-heart-fill" style={{ color: 'red' }}></i>
+                  ) : (
+                    <i className="bi bi-heart" style={{ color: 'black' }}></i>
+                  )}
+                </button>
+              </div>
+              <p>No. of Events: {selectedLocation.noofevent}</p>
+              <Singlemap data={[selectedLocation]} />
+              {/* Event Details */}
+              <h2>Event holding:</h2>
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">Event</th>
+                    <th scope="col">Venue</th>
+                    <th scope="col">Date/Time</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Presenter</th>
+                    <th scope="col">Price (HK$)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredEvents.map((event, index) => (
+                    <TRS key={index} event={event} />
+                  ))}
+                </tbody>
+              </table>
+    
+              {/* User Comments */}
+              <h3>Comments:</h3>
+              <div id="comment">
+                <div id="comment_container">
+                  <div id="comments">
+                  <h5>1155158054@link.cuhk.edu.hk</h5>
+                    <p>CSCI2720 is Good!</p>
+                    {comments.map((comment) => (
+                       <div key={comment.id} id={`c${comment.id}`} className="d-flex">
+                        <div className="flex-shrink-0"></div>
+                        <div className="flex-grow-1">
+                        <h5>{comment.username}</h5>
+                        <p>{comment.comment}</p>
                         </div>
                       </div>
-                      <h6>Add your comment:</h6>
-                      <form>
-                        <div className="mb-3">
-                          <label htmlFor="new-comment" className="form-label">
-                            Comment
-                          </label>
-                          <textarea
-                            className="form-control"
-                            id="new-comment"
-                            rows="3"
-                            required
-                            value={comment}
-                            onChange={handleCommentChange}
-                          ></textarea>
-                          <div className="invalid-feedback">
-                            Please enter your comment.
-                          </div>
-                        </div>
-                        <button
-                          type="button"
-                          className="btn btn-primary"
-                          onClick={addComment}
-                        >
-                          Add comment
-                        </button>
-                      </form>
+                    ))}
+                  </div>
+                  <h6>Add your comment:</h6>
+                  <form>
+                    <div className="mb-3">
+                      <label htmlFor="new-comment" className="form-label">
+                        Comment
+                      </label>
+                      <textarea
+                        className="form-control"
+                        id="new-comment"
+                        rows="3"
+                        required
+                        value={comment}
+                        onChange={handleCommentChange}
+                      ></textarea>
+                      <div className="invalid-feedback">
+                        Please enter your comment.
+                      </div>
                     </div>
-                  </section>
+                    <button
+                      type="button"
+                      className="btn btn-primary"
+                      onClick={addComment}
+                    >
+                      Add comment
+                    </button>
+                  </form>
                 </div>
               </div>
-            </section>
-          );
+            </div>
+          </div>
+        </section>
+      );
     }
 
     // TRS: Table Row for Single location, handle the dynamic content of the table
@@ -618,7 +693,7 @@
 
       componentDidMount() {
         const { event } = this.props;
-        const { minPrice, maxPrice } = this.findMinMaxPrice(event);
+        const { maxPrice } = this.findMinMaxPrice(event);
       
         // Set initial slider value and update state
         const sliderValue = maxPrice;
@@ -715,7 +790,7 @@
       render() {
           return (
               <header>
-                  <h1 className="display-4 text-center">{this.props.name}</h1>
+                  
               </header>
           );
       }
