@@ -30,6 +30,7 @@
       useLocation,
     } from 'react-router-dom';
     import Login from "./login.js"
+    import Admin from "./admin.js"
 
     // Global Var for class Map
     const customIcon = new Icon({
@@ -56,17 +57,13 @@
     let loginState = false;
 
     class Logout extends React.Component {
-      logout = () => {
-        // Fred will do this part
 
-      }
-    
       render() {
         return (
           <div>
             <div id="topright">
               <i>Welcome, {this.props.name}</i>
-              <button type="button" id="logout" className="btn" onClick={this.logout}>
+              <button type="button" id="logout" className="btn" onClick={this.props.logout}>
                 Log out
               </button>
             </div>
@@ -95,27 +92,33 @@
         this.setState({ favloc: updatedFavloc });
       };
 
+      updateLogin = (login, isAdmin) => {
+        this.setState({ login: login, isAdmin, isAdmin })
+      }
+
+      logout = () => {
+        this.setState({ login: false });
+      }
+
       render(){
         // Add a function to handle first load to retrieve xml here
     
         // Check if the event data is loaded
         if (this.state.login == false) {
-          return <Login />
+          return <Login update={this.updateLogin}/>
         }
         if (this.state.lastUpdate != null) {
           // Check if the user is admin or not
           if (this.state.isAdmin === true) {
             // Admin page
             console.log("login as admin");
-            return {
-              // Fred will do this part
-            }
+            return <Admin logout={this.updateLogin}/>
           } else {
             // User page
             console.log("login as user");
             return(
               <BrowserRouter>
-                <Logout name = {this.state.username}/>
+                <Logout name = {this.state.username} logout = {this.logout}/>
                 <Title name = {this.state.username}/>
                 <div>
                   <nav>

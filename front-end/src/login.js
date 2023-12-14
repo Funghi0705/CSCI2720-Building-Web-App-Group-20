@@ -22,17 +22,12 @@ export default class Login extends React.Component{
     render(){
       return (
         // Fred will do this part
-        <html>
-        <head>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"></link>
-        </head>
         <body style={{ backgroundColor: "#FBE8A6", minHeight: "100vh"}}>
                 <h1 style={{width: "100%", textAlign: "center", marginTop: 0}}>{classTitle}</h1>
                 <h1 style={{width: "100%", textAlign: "center", }}>{title}</h1>
                 <br />
-                <LoginForm />
+                <LoginForm updateLogin = {this.props.update}/>
         </body>
-        </html>
       )
     }
   }
@@ -58,14 +53,18 @@ class LoginForm extends React.Component{
 
     submitLogin = (e) => {
         e.preventDefault();
+        document.getElementById("loginForm").requestSubmit();
         console.log(this.state)
+        if (this.state.isAdmin != undefined) {
+            this.props.updateLogin(true, this.state.isAdmin);
+        }
     }
 
     render(){
         return(
             <div className='container' style={{maxWidth: 450, marginTop: "10vh", borderRadius: 20, borderColor: "black", border: "solid",
                                                 padding: 15, backgroundColor: "#B4DFE5"}}>
-                <form>
+                <form id='loginForm'>
                     <div class="form-group row">
                         <label for="inputUsername" class="col-sm-4 col-form-label">Username :</label>
                         <div class="col-sm-7">
