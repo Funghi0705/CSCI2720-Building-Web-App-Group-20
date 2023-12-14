@@ -65,7 +65,7 @@
       render() {
         return (
           <div>
-            <div id="topright">
+            <div id="logout">
               <i>Welcome, {this.props.name}</i>
               <button type="button" id="logout" className="btn" onClick={this.logout}>
                 Log out
