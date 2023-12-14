@@ -57,8 +57,9 @@
 
     class Logout extends React.Component {
       logout = () => {
-        // Fred will do this part
-
+        if (window.confirm("You are logging out. Are you sure?")) {
+          this.props.onLogout();
+        }
       }
     
       render() {
@@ -95,6 +96,10 @@
         this.setState({ favloc: updatedFavloc });
       };
 
+      handleLogout = () => {
+        this.setState({ login: false });
+      };
+
       render(){
         // Add a function to handle first load to retrieve xml here
     
@@ -115,7 +120,7 @@
             console.log("login as user");
             return(
               <BrowserRouter>
-                <Logout name = {this.state.username}/>
+                <Logout name={this.state.username} onLogout={this.handleLogout} />
                 <Title name = {this.state.username}/>
                 <div>
                   <nav>
