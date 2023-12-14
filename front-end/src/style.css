@@ -1,6 +1,6 @@
 .leaflet-container {
-  height: 400px;
-  width: 400px;
+  height: 50vh;
+  width: 50vw;
   border-radius: 2rem;
 }
 
@@ -42,10 +42,9 @@ body {
 
 header {
   background-color: #5268b3;
-  color: rgb(241, 241, 241);
-  padding: 20px;
-  text-align: center;
-  font-size: 10px;
+  color: rgb(0, 0, 0);
+  padding: 80px;
+  background-image:url("./banner.png"); 
   background-size:cover; 
   background-position:center;
 }
@@ -90,6 +89,7 @@ h4 {
 h5, h6, label, p {
   text-align: justify;
   line-height: 1.5;
+
 }
 
 table {
@@ -123,6 +123,28 @@ th, td {
   text-align: right; 
   background-color: #303c6c;
   color: rgb(255, 240, 246);
+}
 
 
+#map{
+  position: absolute;
+  right: 24vw;
+  padding: 10px;
+}
+
+#maps{
+  max-width: 80vw;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #fcf1c6;
+  color: #414141;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+  margin-bottom: 20px;
+}
+
+.heart-button {
+  font-size: 1.5rem;
+  background-color: transparent;
+  border: none;
+  margin-left: 10px;
 }
