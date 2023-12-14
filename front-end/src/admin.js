@@ -26,6 +26,48 @@ const fakeData_Event = [{"ID":1,"name":"Errol","price":32,"quota":45},
 {"ID":9,"name":"Hildagarde","price":68,"quota":34},
 {"ID":10,"name":"Glenn","price":86,"quota":74}]
 
+const fakeData_User = [{
+  "id": 1,
+  "username": "scardenosa0",
+  "password": "lP8`u(c6Ym(hHM"
+}, {
+  "id": 2,
+  "username": "dkilbane1",
+  "password": "wC8(R5T@Cb"
+}, {
+  "id": 3,
+  "username": "wfillon2",
+  "password": "gA0{1pX0Q5Y0U"
+}, {
+  "id": 4,
+  "username": "asnowling3",
+  "password": "cD8$F26Z"
+}, {
+  "id": 5,
+  "username": "gburdett4",
+  "password": "cD0#gq@fU9!tR/5"
+}, {
+  "id": 6,
+  "username": "smcnay5",
+  "password": "sE5$)92k*x"
+}, {
+  "id": 7,
+  "username": "lkinneir6",
+  "password": "uN7>17SKiQR/"
+}, {
+  "id": 8,
+  "username": "rpelfer7",
+  "password": "pS5(tg772PbJ{i/"
+}, {
+  "id": 9,
+  "username": "cwinspear8",
+  "password": "zK4#2WB/Eo+\\V.s"
+}, {
+  "id": 10,
+  "username": "rminnis9",
+  "password": "rU8{`e(zD(X6/pu"
+}]
+
 export default class Admin extends React.Component{
 
 
@@ -44,9 +86,16 @@ export default class Admin extends React.Component{
 }
 
 class Logout extends React.Component{
+
+  handleLogout = () => {
+    if (window.confirm("You are logging out. Are you sure?")) {
+      this.props.logout(false, undefined)
+    }
+  }
+
   render() {
     return (
-      <button className='col-sm-1 btn btn-primary' style={{backgroundColor: "#303C6C"}} onClick={() => this.props.logout(false, undefined)}>Logout</button>
+      <button className='col-sm-1 btn btn-primary' style={{backgroundColor: "#303C6C"}} onClick={this.handleLogout}>Logout</button>
     )
   }
 }
@@ -59,9 +108,9 @@ class NavTable extends React.Component{
   render() {
     return (
       <div className='container'>
-      <nav className="navbar navbar-expand-lg navbar-light" style={{backgroundColor: "#D2FDFF"}}>
-        <div className='collapse navbar-collapse'>
-          <ul className='navbar-nav'>
+      <nav className="navbar navbar-expand-lg navbar-light" style={{backgroundColor: "#D2FDFF", borderTopRightRadius:20, borderTopLeftRadius:20}}>
+        <div className='collapse navbar-collapse' style={{marginLeft:10}}>
+          <ul className='navbar-nav' style={{backgroundColor: "#D2FDFF"}}>
             <li className='nav-item active'>
               <a className='nav-link' href="#" style={this.state.viewEvent?{fontWeight: "bolder", color: "Highlight"}:{fontWeight: "bolder"}} onClick={() => this.setState({viewEvent: true})}>Events</a>
             </li>
@@ -71,42 +120,141 @@ class NavTable extends React.Component{
           </ul>
         </div>
       </nav>
-        {this.state.viewEvent ? <EventTable /> : <></>}
+        {this.state.viewEvent ? <EventTable /> : <UserTable />}
       </div>
     )
   }
 }
 
-class EventTable extends React.Component{
+class UserTable extends React.Component{
+
+  constructor(props) {
+    super(props);
+    this.state = {edit: undefined, add:false};
+  }
+
+  editHandle = (ID) => {
+    this.setState({edit:ID})
+  }
+
   render() {
     return(<table className="table" style={{backgroundColor: "#F4976C"}}>
       <thead>
-      <tr>
+      <tr key={0}>
         <th style={{width: "20%"}}>ID</th>
-        <th style={{width: "20%"}}>Name</th>
-        <th style={{width: "20%"}}>Price</th>
-        <th style={{width: "20%"}}>Quota</th>
-        <th style={{width: "20%"}}>Action</th>
+        <th style={{width: "20%"}}>Username</th>
+        <th style={{width: "20%"}}>Password</th>
+        <th style={{width: "20%"}}><button className='btn btn-info' style={{paddingTop:0, paddingBottom:0}} onClick={() => this.setState({add:true})}><i class="bi bi-plus-square" style={{marginRight:4}}></i>Add</button></th>
       </tr>
       </thead>
       <tbody>
-        {fakeData_Event.map((data) => <EventTableRow data={data}/>)}
+      {this.state.add?
+          <AddUser Cancel={() => this.setState({add:false})}/>
+        :<></>}
+        {fakeData_User.map((data) => <UserTableRow data={data} edit_id={this.state.edit} edit={this.editHandle}/>)}
       </tbody>
   </table>)
   }
 }
 
-class EventTableRow extends React.Component{
+class UserTableRow extends React.Component{
   render(){
     return (
-      <tr>
-        <th>{this.props.data["ID"]}</th>
-        <th>{this.props.data["name"]}</th>
-        <th>${this.props.data["price"]}</th>
-        <th>{this.props.data["quota"]}</th>
+      <tr key={this.props.data["id"]}>
+        <th>{this.props.data["id"]}</th>
+        <th>{this.props.edit_id == this.props.data["id"]?<input placeholder={this.props.data["username"]}></input>:this.props.data["username"]}</th>
+        <th>{this.props.edit_id == this.props.data["id"]?<input placeholder={this.props.data["password"]}></input>:this.props.data["password"]}</th>
         <th>
-          <button className='btn' style={{maxHeight:35}}><i class="bi bi-pencil-square"/></button>
+          <button className='btn' style={{maxHeight:35}} onClick={() => this.props.edit(this.props.data["id"])}><i class="bi bi-pencil-square"/></button>
           <button className='btn' style={{maxHeight:35}}><i class="bi bi-trash3"/></button>
+          {this.props.edit_id == this.props.data["id"]?<button className='btn btn-success'>Confirm</button>:<></>}
+          {this.props.edit_id == this.props.data["id"]?<button className='btn btn-danger' onClick={() => this.props.edit(undefined)} style={{marginLeft:2, marginBottom:4}}>Cancel</button>:<></>}
+          </th>
+      </tr>
+    )
+  }
+}
+
+class EventTable extends React.Component{
+
+  constructor(props) {
+    super(props);
+    this.state = {edit: undefined, add: false};
+  }
+
+  editHandle = (ID) => {
+    this.setState({edit:ID})
+  }
+
+  render() {
+    return(<table className="table" style={{backgroundColor: "#F4976C"}}>
+      <thead>
+      <tr key={0}>
+        <th style={{width: "20%", cursor: "pointer"}}>ID</th>
+        <th style={{width: "20%", cursor: "pointer"}}>Name</th>
+        <th style={{width: "20%", cursor: "pointer"}}>Price</th>
+        <th style={{width: "20%", cursor: "pointer"}}>Quota</th>
+        <th style={{width: "20%"}}><button className='btn btn-info' style={{paddingTop:0, paddingBottom:0}} onClick={() => this.setState({add:true})}><i class="bi bi-plus-square" style={{marginRight:4}}></i>Add</button></th>
+
+      </tr>
+      </thead>
+      <tbody>
+        {this.state.add?
+          <AddEvent Cancel={() => this.setState({add:false})}/>
+        :<></>}
+        {fakeData_Event.map((data) => <EventTableRow data={data} edit_id={this.state.edit} edit={this.editHandle}/>)}
+      </tbody>
+  </table>)
+  }
+}
+
+class AddUser extends React.Component{
+  render(){
+    return(
+      <tr key={"new"}>
+      <th>New</th>
+      <th><input></input></th>
+      <th><input></input></th>
+      <th>
+        <button className='btn btn-success'>Confirm</button>
+        <button className='btn btn-danger' style={{marginLeft:2, marginBottom:4}} onClick={this.props.Cancel}>Cancel</button>
+      </th>
+    </tr>
+    )
+  }
+}
+
+class AddEvent extends React.Component{
+  render(){
+    return(
+      <tr key={"new"}>
+        <th>New</th>
+        <th><input></input></th>
+        <th><input></input></th>
+        <th><input></input></th>
+        <th>
+          <button className='btn btn-success'>Confirm</button>
+          <button className='btn btn-danger' style={{marginLeft:2, marginBottom:4}} onClick={this.props.Cancel}>Cancel</button>
+        </th>
+      </tr>
+    )
+  }
+}
+
+class EventTableRow extends React.Component{
+
+  render(){
+    return (
+      <tr key={this.props.data["ID"]}>
+        <th>{this.props.data["ID"]}</th>
+        <th>{this.props.edit_id == this.props.data["ID"]?<input placeholder={this.props.data["name"]}></input>:this.props.data["name"]}</th>
+        <th>${this.props.edit_id == this.props.data["ID"]?<input placeholder={this.props.data["price"]}></input>:this.props.data["price"]}</th>
+        <th>{this.props.edit_id == this.props.data["ID"]?<input placeholder={this.props.data["quota"]}></input>:this.props.data["quota"]}</th>
+        <th>
+          <button className='btn' style={{maxHeight:35}} onClick={() => this.props.edit(this.props.data["ID"])}><i class="bi bi-pencil-square"/></button>
+          <button className='btn' style={{maxHeight:35}}><i class="bi bi-trash3"/></button>
+          {this.props.edit_id == this.props.data["ID"]?<button className='btn btn-success'>Confirm</button>:<></>}
+          {this.props.edit_id == this.props.data["ID"]?<button className='btn btn-danger' onClick={() => this.props.edit(undefined)} style={{marginLeft:2, marginBottom:4}}>Cancel</button>:<></>}
           </th>
       </tr>
     )

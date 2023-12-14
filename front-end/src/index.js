@@ -54,7 +54,7 @@
     ]
 
     let lastUpdate = "6/12/2023 9:30";
-    let loginState = true;
+    let loginState = false;
 
     class Logout extends React.Component {
       logout = () => {
@@ -68,7 +68,7 @@
           <div>
             <div id="logout">
               <i>Welcome, {this.props.name}</i>
-              <button type="button" id="logout" className="btn" onClick={this.props.logout}>
+              <button type="button" id="logout" className="btn" onClick={this.logout}>
                 Log out
               </button>
             </div>
@@ -100,6 +100,10 @@
       handleLogout = () => {
         this.setState({ login: false });
       };
+
+      updateLogin = (loginState, isAdmin) => {
+        this.setState({ login: loginState, isAdmin: isAdmin})
+      }
 
       render(){
         // Add a function to handle first load to retrieve xml here
