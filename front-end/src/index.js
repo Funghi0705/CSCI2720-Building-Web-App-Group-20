@@ -283,7 +283,7 @@
                       name="sorting"
                       value="nosort"
                       onChange={this.handleSort}
-                      checked={this.state.sortevent === 'nosort'}
+                      checked={sortevent === 'nosort'}
                     />
                     <label htmlFor="nosorting">No sorting</label>
                   </div>
@@ -294,7 +294,7 @@
                       name="sorting"
                       value="ascending"
                       onChange={this.handleSort}
-                      checked={this.state.sortevent === 'ascending'}
+                      checked={sortevent === 'ascending'}
                     />
                     <label htmlFor="ascending">Ascending</label>
                   </div>
@@ -305,14 +305,12 @@
                       name="sorting"
                       value="descending"
                       onChange={this.handleSort}
-                      checked={this.state.sortevent === 'descending'}
+                      checked={sortevent === 'descending'}
                     />
                     <label htmlFor="descending">Descending</label>
                   </div>
                 </fieldset>
-             </section>
-
-              <section>
+                <hr/>
                 <table>
                   <thead>
                     <tr>
@@ -696,7 +694,7 @@
 
       componentDidMount() {
         const { event } = this.props;
-        const { minPrice, maxPrice } = this.findMinMaxPrice(event);
+        const { maxPrice } = this.findMinMaxPrice(event);
       
         // Set initial slider value and update state
         const sliderValue = maxPrice;
