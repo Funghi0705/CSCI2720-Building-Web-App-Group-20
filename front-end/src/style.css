@@ -148,3 +148,8 @@ th, td {
   border: none;
   margin-left: 10px;
 }
+
+.x-circle {
+  background-color: transparent;
+  border: none;
+}
