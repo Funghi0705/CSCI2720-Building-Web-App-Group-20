@@ -134,7 +134,7 @@
                   <Route path="/" element={<Home lastUpdate={this.state.lastUpdate}/>} />
                   <Route path="/loc" element={<Location data={this.state.loc}/>} />
                   <Route path="/map" element={<Map data={this.state.loc}/>} />
-                  <Route path="/loc/:locId" element={<SingleLoc loc={this.state.loc} event={this.state.event} updateFavloc={this.updateFavloc}/>} />
+                  <Route path="/loc/:locId" element={<SingleLoc loc={this.state.loc} event={this.state.event} updateFavloc={this.updateFavloc} username={this.state.username}/>} />
                   <Route path="/favour" element={<Favour data={this.state.favloc} updateFavloc={this.updateFavloc}/>} />
                   <Route path="/event" element={<Event event={this.state.event} loc={this.state.loc}/>} />
                   <Route path="/backend" element={<Backend />} />
@@ -459,89 +459,93 @@
         if (comment.trim() !== "") {
           const newComment = {
             id: comments.length + 1,
-            username: username,
+            username: props.username,
             comment: comment.trim()
           };
-    
+      
           setComments((prevComments) => [...prevComments, newComment]);
           setComment(""); // Clear the comment input field after adding the comment
         }
       };
-
-          return (
-            <section>
-              <div class="container">
-                <div class="row">
-                  {/* Location Details */}
-                  <h2>{selectedLocation.name}</h2>
-                  <p>No. of Events: {selectedLocation.noofevent}</p>
-                  <Map data={[selectedLocation]} />
-                  {/* Add/Remove a button to add location favor loc, next to he name have a filled/unfilled heart*/}
-                  {/* Event Details */}
-                  <h2>Event holding:</h2>
-                  <table>
-                    <thead>
-                      <tr>
-                        <th scope="col">Event</th>
-                        <th scope="col">Venue</th>
-                        <th scope="col">Date/Time</th>
-                        <th scope="col">Description</th>
-                        <th scope="col">Presenter</th>
-                        <th scope="col">Price (HK$)</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredEvents.map((event, index) => (
-                        <TRS key={index} event={event} />
-                      ))}
-                    </tbody>
-                  </table>
-        
-                  {/* User Comments */}
-                  <h3>Comments:</h3>
-                  <section id="comment">
-                    <div id="comment_container">
-                      <div id="comments">
-                        <div id="c1001" className="d-flex">
-                          <div className="flex-shrink-0"></div>
-                          <div className="flex-grow-1">
-                            <h5>1155158054@link.cuhk.edu.hk</h5>
-                            <p>CSCI2720 is Good!</p>
-                          </div>
+    
+      return (
+        <section>
+          <div className="container">
+            <div className="row">
+              {/* Location Details */}
+              <h2>{selectedLocation.name}</h2>
+              <p>No. of Events: {selectedLocation.noofevent}</p>
+              <Map data={[selectedLocation]} />
+              {/* Add/Remove a button to add location favor loc, next to he name have a filled/unfilled heart*/}
+              {/* Event Details */}
+              <h2>Event holding:</h2>
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">Event</th>
+                    <th scope="col">Venue</th>
+                    <th scope="col">Date/Time</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Presenter</th>
+                    <th scope="col">Price (HK$)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredEvents.map((event, index) => (
+                    <TRS key={index} event={event} />
+                  ))}
+                </tbody>
+              </table>
+    
+              {/* User Comments */}
+              <h3>Comments:</h3>
+              <section id="comment">
+                <div id="comment_container">
+                  <div id="comments">
+                  <h5>1155158054@link.cuhk.edu.hk</h5>
+                    <p>CSCI2720 is Good!</p>
+                    {comments.map((comment) => (
+                       <div key={comment.id} id={`c${comment.id}`} className="d-flex">
+                        <div className="flex-shrink-0"></div>
+                        <div className="flex-grow-1">
+                        <h5>{comment.username}</h5>
+                        <p>{comment.comment}</p>
                         </div>
                       </div>
-                      <h6>Add your comment:</h6>
-                      <form>
-                        <div className="mb-3">
-                          <label htmlFor="new-comment" className="form-label">
-                            Comment
-                          </label>
-                          <textarea
-                            className="form-control"
-                            id="new-comment"
-                            rows="3"
-                            required
-                            value={comment}
-                            onChange={handleCommentChange}
-                          ></textarea>
-                          <div className="invalid-feedback">
-                            Please enter your comment.
-                          </div>
-                        </div>
-                        <button
-                          type="button"
-                          className="btn btn-primary"
-                          onClick={addComment}
-                        >
-                          Add comment
-                        </button>
-                      </form>
+                    ))}
+                  </div>
+                  <h6>Add your comment:</h6>
+                  <form>
+                    <div className="mb-3">
+                      <label htmlFor="new-comment" className="form-label">
+                        Comment
+                      </label>
+                      <textarea
+                        className="form-control"
+                        id="new-comment"
+                        rows="3"
+                        required
+                        value={comment}
+                        onChange={handleCommentChange}
+                      ></textarea>
+                      <div className="invalid-feedback">
+                        Please enter your comment.
+                      </div>
                     </div>
-                  </section>
+                    <button
+                      type="button"
+                      className="btn btn-primary"
+                      onClick={addComment}
+                    >
+                      Add comment
+                    </button>
+                  </form>
                 </div>
-              </div>
-            </section>
-          );
+              </section>
+            </div>
+          </div>
+        </section>
+      );
     }
 
     // TRS: Table Row for Single location, handle the dynamic content of the table
