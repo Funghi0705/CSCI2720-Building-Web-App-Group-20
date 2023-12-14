@@ -163,7 +163,7 @@
         return (
           <>
           <section>
-            <div class="container" style={{borderRadius:20, borderColor: 'black', border: "solid"}}>
+            <div class="container">
               <div class="row">
                 <h3>Welcome to the Cultural Programmes Collection Website <i class="bi bi-calendar-check"></i></h3>
                 <p>
