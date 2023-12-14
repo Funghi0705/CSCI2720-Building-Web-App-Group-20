@@ -53,7 +53,7 @@
     ]
 
     let lastUpdate = "6/12/2023 9:30";
-    let loginState = false;
+    let loginState = true;
 
     class Logout extends React.Component {
       logout = () => {
@@ -121,7 +121,7 @@
             return(
               <BrowserRouter>
                 <Logout name={this.state.username} onLogout={this.handleLogout} />
-                <Title name = {this.state.username}/>
+                <Title />
                 <div>
                   <nav>
                     <ul>
@@ -139,7 +139,7 @@
                   <Route path="/" element={<Home lastUpdate={this.state.lastUpdate}/>} />
                   <Route path="/loc" element={<Location data={this.state.loc}/>} />
                   <Route path="/map" element={<Map data={this.state.loc}/>} />
-                  <Route path="/loc/:locId" element={<SingleLoc loc={this.state.loc} event={this.state.event} updateFavloc={this.updateFavloc} username={this.state.username}/>} />
+                  <Route path="/loc/:locId" element={<SingleLoc loc={this.state.loc} event={this.state.event} favloc={this.state.favloc} updateFavloc={this.updateFavloc} username={this.state.username}/>} />
                   <Route path="/favour" element={<Favour data={this.state.favloc} updateFavloc={this.updateFavloc}/>} />
                   <Route path="/event" element={<Event event={this.state.event} loc={this.state.loc}/>} />
                   <Route path="/backend" element={<Backend />} />
@@ -266,17 +266,14 @@
       render() {
         const { output, sortevent } = this.state;
         return (
-          <section>
-            <div class="container">
-              <div class="row">
+          <div>
+              <section>
                 <div>
                   <label for="searchInput">Search with keyword: </label>
                   <input type="text" id="searchInput" placeholder="Enter keyword"/>
                   <input type="button" value="Search" onClick={this.handleSearch}/>
                 </div>
-                <br />
-                <br />
-                <hr />
+                <hr/>
                 <fieldset>
                   <legend>Sort by number of events:</legend>
                   <div>
@@ -313,7 +310,9 @@
                     <label htmlFor="descending">Descending</label>
                   </div>
                 </fieldset>
-                <hr />
+             </section>
+
+              <section>
                 <table>
                   <thead>
                     <tr>
@@ -325,13 +324,12 @@
                     {output.map((file, index) => <TRL i={index} key={index} data={output} />)}
                   </tbody>
                 </table>
-              </div>
+              </section>
             </div>
-          </section>
         );
       }
     }
-    
+
     // TRL: Table Row for Location, handle the dynamic content of the table 
     class TRL extends React.Component {
       render() {
@@ -364,7 +362,8 @@
       render() {
         const { selectedMarker } = this.state;
         return (
-          <div>
+          <section id="maps">
+          <div id="map">
             <MapContainer center={[this.props.data[0].latitude, this.props.data[0].longtitude]} zoom={17}>
               <TileLayer
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -382,6 +381,46 @@
               ))}
             </MapContainer>
           </div>
+          </section>
+        );
+      }
+    }
+
+    class Singlemap extends React.Component {
+      constructor(props) {
+        super(props);
+        this.state = {
+          selectedMarker: null
+        };
+      }
+    
+      handleMarkerClick = (marker) => {
+        this.setState({ selectedMarker: marker });
+      };
+    
+      render() {
+        const { selectedMarker } = this.state;
+        return (
+
+          <div id="singlemap">
+            <MapContainer center={[this.props.data[0].latitude, this.props.data[0].longtitude]} zoom={17}>
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+              {this.props.data.map((marker) => (
+                <Marker
+                  key={marker.locId}
+                  position={[marker.latitude, marker.longtitude]} 
+                  icon={selectedMarker === marker ? customIcon : customIcon}
+                  eventHandlers={{ click: () => this.handleMarkerClick(marker) }}
+                >
+                  <Popup><Link to={"/loc/" + marker.locId}>{marker.name}</Link></Popup> 
+                </Marker>
+              ))}
+            </MapContainer>
+          </div>
+
         );
       }
     }
@@ -453,6 +492,24 @@
         (event) => event.venue === selectedLocation.name
       );
     
+      // Check if the location is the user's favourite location, and allow user's to add/remove it to/from the favourite location
+      const isFavorite = props.favloc.some(
+        (favLocation) => favLocation.locId === selectedLocation.locId
+      );
+
+      const toggleFavorite = () => {
+        if (isFavorite) {
+          const updatedFavloc = props.favloc.filter(
+            (favLocation) => favLocation.locId !== selectedLocation.locId
+          );
+          props.updateFavloc(updatedFavloc);
+        } else {
+          const newFavloc = [...props.favloc, selectedLocation];
+          props.updateFavloc(newFavloc);
+        }
+        console.log(props.favloc);
+      };
+    
       const [comment, setComment] = useState("");
       const [comments, setComments] = useState([]);
     
@@ -467,7 +524,7 @@
             username: props.username,
             comment: comment.trim()
           };
-      
+    
           setComments((prevComments) => [...prevComments, newComment]);
           setComment(""); // Clear the comment input field after adding the comment
         }
@@ -477,11 +534,22 @@
         <section>
           <div className="container">
             <div className="row">
-              {/* Location Details */}
-              <h2>{selectedLocation.name}</h2>
+              <div className="d-flex align-items-center">
+                <h2>{selectedLocation.name}</h2>
+                <button
+                  type="button"
+                  className="btn btn-link heart-button"
+                  onClick={toggleFavorite}
+                >
+                  {isFavorite ? (
+                    <i className="bi bi-heart-fill" style={{ color: 'red' }}></i>
+                  ) : (
+                    <i className="bi bi-heart" style={{ color: 'black' }}></i>
+                  )}
+                </button>
+              </div>
               <p>No. of Events: {selectedLocation.noofevent}</p>
-              <Map data={[selectedLocation]} />
-              {/* Add/Remove a button to add location favor loc, next to he name have a filled/unfilled heart*/}
+              <Singlemap data={[selectedLocation]} />
               {/* Event Details */}
               <h2>Event holding:</h2>
               <table>
@@ -504,7 +572,7 @@
     
               {/* User Comments */}
               <h3>Comments:</h3>
-              <section id="comment">
+              <div id="comment">
                 <div id="comment_container">
                   <div id="comments">
                   <h5>1155158054@link.cuhk.edu.hk</h5>
@@ -546,7 +614,7 @@
                     </button>
                   </form>
                 </div>
-              </section>
+              </div>
             </div>
           </div>
         </section>
@@ -721,7 +789,7 @@
       render() {
           return (
               <header>
-                  <h1 className="display-4 text-center">{this.props.name}</h1>
+                  
               </header>
           );
       }
