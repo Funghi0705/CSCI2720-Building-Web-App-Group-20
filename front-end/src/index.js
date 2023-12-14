@@ -68,7 +68,7 @@
           <div>
             <div id="logout">
               <i>Welcome, {this.props.name}</i>
-              <button type="button" id="logout" className="btn" onClick={this.props.logout}>
+              <button type="button" id="logout" className="btn" onClick={this.logout}>
                 Log out
               </button>
             </div>
@@ -309,7 +309,7 @@
                     <label htmlFor="descending">Descending</label>
                   </div>
                 </fieldset>
-                <hr/>
+                </section><section>
                 <table>
                   <thead>
                     <tr>
@@ -360,7 +360,7 @@
         const { selectedMarker } = this.state;
         return (
           <section id="maps">
-          <div id="map">
+          <div id="map1" class="map-container">
             <MapContainer center={[this.props.data[0].latitude, this.props.data[0].longtitude]} zoom={17}>
               <TileLayer
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -399,8 +399,8 @@
         const { selectedMarker } = this.state;
         return (
 
-          <div id="singlemap">
-            <MapContainer center={[this.props.data[0].latitude, this.props.data[0].longtitude]} zoom={17}>
+          <div id="map2" class="map-container">
+            <MapContainer center={[this.props.data[0].latitude, this.props.data[0].longtitude]} zoom={17} class="singlemap">
               <TileLayer
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -576,8 +576,6 @@
               <div id="comment">
                 <div id="comment_container">
                   <div id="comments">
-                  <h5>1155158054@link.cuhk.edu.hk</h5>
-                    <p>CSCI2720 is Good!</p>
                     {comments.map((comment) => (
                        <div key={comment.id} id={`c${comment.id}`} className="d-flex">
                         <div className="flex-shrink-0"></div>
@@ -787,12 +785,92 @@
     }
     
     class Title extends React.Component {
+      constructor(props) {
+        super(props);
+        this.slideIndex = 0;
+        this.timer = null;
+      }
+      
+      componentDidMount() {
+        this.showSlides();
+      }
+      
+      componentWillUnmount() {
+        clearTimeout(this.timer);
+      }
+      
+      plusSlides(n) {
+        clearTimeout(this.timer);
+        this.slideIndex += n;
+        this.showSlides();
+      }
+      
+      showSlides() {
+        const slides = document.getElementsByClassName("mySlides");
+      
+        if (this.slideIndex >= slides.length) {
+          this.slideIndex = 0;
+        }
+        if (this.slideIndex < 0) {
+          this.slideIndex = slides.length - 1;
+        }
+      
+        slides[this.slideIndex].style.display = "block";
+
+        // Hide all slides first
+        for (let i = 0; i < slides.length; i++) {
+          slides[i].style.display = "none";
+        }
+      
+        // Display the current slide
+        slides[this.slideIndex].style.display = "block";
+      
+        // Start the timer for automatic slide change
+        this.timer = setTimeout(() => {
+          this.slideIndex++;
+          this.showSlides();
+        }, 7000); // Change slide every 8 seconds
+      }
+    
       render() {
-          return (
-              <header>
-                  
-              </header>
-          );
+        return (
+          <div>
+            <div className="slideshow-container">
+              <div className="mySlides">
+                <div className="numbertext">1 / 5</div>
+                <img src="slides/North_District_Town_Hall.jpg" style={{ width: '100%', height: '130px', objectFit: 'cover' }} alt="Slide 1" />
+                <div className="text">North District Town Hall</div>
+              </div>
+    
+              <div className="mySlides">
+                <div className="numbertext">2 / 5</div>
+                <img src="slides/Sha_Tin_Town_Hall.jpg" style={{ width: '100%', height: '130px', objectFit: 'cover' }} alt="Slide 2" />
+                <div className="text">Sha Tin Town Hall</div>
+              </div>
+    
+              <div className="mySlides">
+                <div className="numbertext">3 / 5</div>
+                <img src="slides/Hong_Kong_Cultural_Centre.jpg" style={{ width: '100%', height: '130px', objectFit: 'cover' }} alt="Slide 3" />
+                <div className="text">Hong Kong Cultural Centre</div>
+              </div>
+
+              <div className="mySlides">
+                <div className="numbertext">4 / 5</div>
+                <img src="slides/Hong_Kong_Science_Museum.jpg" style={{ width: '100%', height: '130px', objectFit: 'cover' }} alt="Slide 4" />
+                <div className="text">Hong Kong Science Museum</div>
+              </div>
+
+              <div className="mySlides">
+                <div className="numbertext">5 / 5</div>
+                <img src="slides/Hong_Kong_Film_Archive.jpg" style={{ width: '100%', height: '130px', objectFit: 'cover' }} alt="Slide 5" />
+                <div className="text">Hong Kong Film Archive</div>
+              </div>
+    
+              <a className="prev" onClick={() => this.plusSlides(-1)}>&#10094;</a>
+              <a className="next" onClick={() => this.plusSlides(1)}>&#10095;</a>
+            </div>
+          </div>
+        );
       }
     }
 
