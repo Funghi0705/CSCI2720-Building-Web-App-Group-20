@@ -473,8 +473,12 @@
             </td>
             <td>{this.props.data[i].noofevent}</td>
             <td>
-              <button className="btn btn-danger btn-xs" onClick={this.deleteRow}>
-                Remove
+              <button 
+                  type="button"
+                  className="btn btn-link x-circle"
+                  onClick={this.deleteRow}
+                >
+                  <i class="bi bi-x-circle-fill" style={{ color: 'red' }}></i>
               </button>
             </td>
           </tr>
