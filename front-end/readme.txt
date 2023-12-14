@@ -3,7 +3,8 @@ Environment set up:
 2. npm install react react-dom react-scripts
 3. npm install react-router-dom
 4. npm install leaflet react-leaflet react-leaflet-cluster
-5. npm start
+5. npm install jquery
+6. npm start
 
 Source reference:
 Favicon: https://favicon.io/favicon-generator/
