@@ -83,7 +83,12 @@
 
       // when login, update the last update time and date
       handleLogin = (input) => {
-        this.setState({ login: true, lastUpdate: new Date().toLocaleString(), isAdmin: input.isAdmin, ID: input.ID});
+        if (input.isAdmin) {
+          this.setState({ login: true, lastUpdate: new Date().toLocaleString(), isAdmin: input.isAdmin });
+        }
+        else {
+          this.setState({ login: true, lastUpdate: new Date().toLocaleString(), isAdmin: input.isAdmin, ID: input.ID });
+        }
       }
 
       render(){

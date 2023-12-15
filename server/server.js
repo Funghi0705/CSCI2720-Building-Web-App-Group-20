@@ -269,7 +269,7 @@ db.once('open', async function () {
     }
   });
 
-  // Check the ID and password against the database
+  // Check the username and password against the database
   // If valid, return the user ID
   // Otherwise, return the reason for unsuccessful login
   app.post('/login', async (req, res) => {

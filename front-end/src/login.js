@@ -57,8 +57,12 @@ class LoginForm extends React.Component{
         });
         response = await response.json();
         if (response.success) {
-            let data = response.data;
-            data.isAdmin = this.state.isAdmin
+            let data = this.state;
+            if (!this.state.isAdmin) {
+                console.log(response.data);
+                data = response.data;
+                data['isAdmin'] = this.state.isAdmin;
+            }
             this.props.onLogin(data);
         }
         else {
