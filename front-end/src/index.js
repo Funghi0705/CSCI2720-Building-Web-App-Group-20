@@ -54,28 +54,7 @@
     ]
 
     let lastUpdate = "6/12/2023 9:30";
-    let loginState = false;
-
-    class Logout extends React.Component {
-      logout = () => {
-        if (window.confirm("You are logging out. Are you sure?")) {
-          this.props.onLogout();
-        }
-      }
-    
-      render() {
-        return (
-          <div>
-            <div id="logout">
-              <i>Welcome, {this.props.name}</i>
-              <button type="button" id="logout" className="btn" onClick={this.logout}>
-                Log out
-              </button>
-            </div>
-          </div>
-        );
-      }
-    }
+    let loginState = true;
     
     class App extends React.Component{
       
@@ -101,23 +80,25 @@
         this.setState({ login: false });
       };
 
-      updateLogin = (loginState, isAdmin) => {
-        this.setState({ login: loginState, isAdmin: isAdmin})
+      // when login, update the last update time and date
+      handleLogin = (input) => {
+        this.setState({ login: true, lastUpdate: new Date().toLocaleString(), isAdmin: input});
       }
 
       render(){
         // Add a function to handle first load to retrieve xml here
     
         // Check if the event data is loaded
-        if (this.state.login == false) {
-          return <Login update={this.updateLogin}/>
+        if (this.state.login === false) {
+          return <Login onLogin={this.handleLogin} />
         }
+
         if (this.state.lastUpdate != null) {
           // Check if the user is admin or not
           if (this.state.isAdmin === true) {
             // Admin page
             console.log("login as admin");
-            return <Admin logout={this.updateLogin}/>
+            return <Admin onLogout={this.handleLogout}/>
           } else {
             // User page
             console.log("login as user");
@@ -164,6 +145,27 @@
           </h3>
         </div>
       );
+    }
+
+    class Logout extends React.Component {
+      logout = () => {
+        if (window.confirm("You are logging out. Are you sure?")) {
+          this.props.onLogout();
+        }
+      }
+    
+      render() {
+        return (
+          <div>
+            <div id="logout">
+              <i>Welcome, {this.props.name}</i>
+              <button type="button" id="logout" className="btn" onClick={this.logout}>
+                Log out
+              </button>
+            </div>
+          </div>
+        );
+      }
     }
     
     class Home extends React.Component {
@@ -887,32 +889,34 @@
         };
       }
 
-      render() {
-        async function handleSubmit(event) {
-          event.preventDefault();
-          const username = document.querySelector('#username').value;
-            const password = document.querySelector('#password').value;
-            const isAdmin = document.querySelector('#isAdmin').checked;
-            const data = {
-              username: username,
-              password: password,
-              isAdmin: isAdmin
-            };
-  
-            const response = await fetch('http://localhost:3000/account/create', {
-              method: "POST",
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(data)
-            });
-  
-            this.setState({output: response});
+      handleSubmit = async (event) => {
+        event.preventDefault();
+        const ID = document.querySelector('#ID').value;
+        const password = document.querySelector('#password').value;
+        const isAdmin = document.querySelector('#isAdmin').checked;
+        const data = {
+          ID: ID,
+          password: password,
+          isAdmin: isAdmin
         };
+
+        const response = await fetch('http://localhost:3000/account/create', {
+          method: "POST",
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        this.setState({output: response});
+      };
+
+      render() {
+        
 
         return (
           <div>
-            <form id="createDocument" onSubmit={handleSubmit}>
-              <label for="username">User Name:</label>
-              <input type="text" id="username" name='username' />
+            <form id="createDocument" onSubmit={this.handleSubmit}>
+              <label for="ID">User Name:</label>
+              <input type="text" id="ID" name='ID' />
               <br />
               <label for="password">Password:</label>
               <input type="text" id="password" name='password' />

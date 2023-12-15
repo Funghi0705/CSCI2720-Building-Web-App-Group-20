@@ -22,17 +22,17 @@ const AccountSchema = mongoose.Schema({
   isAdmin: {
     type: Boolean,
     required: true
-  },
-  userID: {
-    type: Number,
-    required: true,
-    unique: true
   }
 });
 
 const UserSchema = mongoose.Schema({
   ID: {
     type: Number,
+    required: true,
+    unique: true
+  },
+  username: {
+    type: String,
     required: true,
     unique: true
   },
@@ -190,11 +190,29 @@ db.once('open', async function () {
   // Create one document for the specified Collection
   app.post('/:schema/create', async (req, res) => {
     try{
+      console.log(req.body);
+      const schema = req.params.schema;
       const Collection = SchemaToCollection[req.params.schema];
       const newDocument = new Collection(req.body);
       await newDocument.save();
 
-      res.send();
+      if (schema == 'account') {
+        if (!req.body.isAdmin) {
+          // retrive the last user ID
+          const lastUser = await User.find().sort({ID: -1}).findOne();
+          const ID = lastUser ? lastUser.ID + 1 : 1;
+
+          // create a new user
+          const newUser = new User({
+            ID: ID,
+            username: req.body.ID,
+            commentIDs: [],
+            favouriteIDs: []
+          });
+        }
+      }
+
+      res.send(newDocument);
     }
     catch (error) {
       res.send(error.message);
@@ -204,11 +222,11 @@ db.once('open', async function () {
 
   // CRUD - Read
   // Read all documents from the specified Collection
-  app.get('/:schema', async (req, res) => {
+  app.get('/:schema/all', async (req, res) => {
     try{
       const Collection = SchemaToCollection[req.params.schema];
       const allDocuments = await Collection.find();
-      res.setHeader('Content-Type', 'text/plain');
+      res.setHeader('Content-Type', 'application/json');
       res.send(allDocuments);
     }
     catch (error) {
@@ -240,20 +258,29 @@ db.once('open', async function () {
       const ID = req.body.ID;
       const password = req.body.password;
       
+      //console.log();
+
       const account = await Account.findOne({ID: ID});
       if (!account) {
-        throw new Error('User Name does not exist.');
+        throw new Error('Username does not exist.');
       }
       if (account.password !== password) {
         throw new Error('Incorrect password.');
       }
 
-      res.setHeader('Content-Type', 'text/plain');
-      res.send(account.userID);
+      // return user ID for user login
+      let data = '';
+      if (!req.body.isAdmin) {
+        const accountHolder = await User.findOne({ID: ID});
+        data = accountHolder.ID;
+      }
+
+      res.setHeader('Content-Type', 'application/json');
+      res.send({success: true, data: data});
     }
     catch (error) {
       res.status(404);
-      res.send(error.message);
+      res.send({success: false, data: error.message});
     }
   });
 

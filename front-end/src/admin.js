@@ -69,33 +69,27 @@ const fakeData_User = [{
 }]
 
 export default class Admin extends React.Component{
-
-
     render() {
-       return (<body style={{ backgroundColor: "#FBE8A6", minHeight: "100vh"}}>
-                <div className='row' style={{width: "100%"}}>
-                  <Logout logout={this.props.logout}/>
-                  <div className='col-sm-1'></div>
-                  <h1 className='col-sm-8' style={{textAlign: "center", marginTop: 0}}>{title}</h1>
-                </div>
-                <h1 style={{width: "100%", textAlign: "center", marginTop: 30}}>Admin Dashboard</h1>
-                <br />
-                  <NavTable />
-              </body>
-    )}
+       return (
+        <body style={{ backgroundColor: "#FBE8A6", minHeight: "100vh"}}>
+          <div className='row' style={{width: "100%"}}>
+            <Logout onLogout={this.props.onLogout}/>
+            <div className='col-sm-1'></div>
+            <h1 className='col-sm-8' style={{textAlign: "center", marginTop: 0}}>{title}</h1>
+          </div>
+          <h1 style={{width: "100%", textAlign: "center", marginTop: 30}}>Admin Dashboard</h1>
+          <br />
+          <NavTable />
+        </body>
+      )
+    }
 }
 
 class Logout extends React.Component{
 
-  handleLogout = () => {
-    if (window.confirm("You are logging out. Are you sure?")) {
-      this.props.logout(false, undefined)
-    }
-  }
-
   render() {
     return (
-      <button className='col-sm-1 btn btn-primary' style={{backgroundColor: "#303C6C"}} onClick={this.handleLogout}>Logout</button>
+      <button className='col-sm-1 btn btn-primary' style={{backgroundColor: "#303C6C"}} onClick={() => this.props.onLogout()}>Logout</button>
     )
   }
 }
@@ -108,19 +102,17 @@ class NavTable extends React.Component{
   render() {
     return (
       <div className='container'>
-      <nav className="navbar navbar-expand-lg navbar-light" style={{backgroundColor: "#D2FDFF", borderTopRightRadius:20, borderTopLeftRadius:20}}>
-        <div className='collapse navbar-collapse' style={{marginLeft:10}}>
-          <ul className='navbar-nav' style={{backgroundColor: "#D2FDFF"}}>
-            <li className='nav-item active'>
-              <a className='nav-link' href="#" style={this.state.viewEvent?{fontWeight: "bolder", color: "Highlight"}:{fontWeight: "bolder"}} onClick={() => this.setState({viewEvent: true})}>Events</a>
-            </li>
-            <li className='nav-item active' style={{marginLeft: "10vw"}}>
-              <a className='nav-link' href="#" style={!this.state.viewEvent?{fontWeight: "bolder", color: "Highlight"}:{fontWeight: "bolder"}} onClick={() => this.setState({viewEvent: false})}>Users</a>
-            </li>
-          </ul>
-        </div>
+      <nav className="navbar navbar-expand-lg navbar-light justify-content-center" style={{backgroundColor: "#D2FDFF"}}>
+        <ul className='navbar-nav flex-row'>
+          <li className='nav-item active'>
+            <a className='nav-link' href='#event' style={this.state.viewEvent?{fontWeight: "bolder", color: "Highlight"}:{fontWeight: "bolder"}} onClick={() => this.setState({viewEvent: true})}>Events</a>
+          </li>
+          <li className='nav-item active' style={{marginLeft: "10vw"}}>
+            <a className='nav-link' href='#user' style={!this.state.viewEvent?{fontWeight: "bolder", color: "Highlight"}:{fontWeight: "bolder"}} onClick={() => this.setState({viewEvent: false})}>Users</a>
+          </li>
+        </ul>
       </nav>
-        {this.state.viewEvent ? <EventTable /> : <UserTable />}
+        {this.state.viewEvent ? <EventTable /> : <AccountTable />}
       </div>
     )
   }
@@ -138,7 +130,7 @@ class UserTable extends React.Component{
   }
 
   render() {
-    return(<table className="table" style={{backgroundColor: "#F4976C"}}>
+    return(<table id='event' className="table" style={{backgroundColor: "#F4976C"}}>
       <thead>
       <tr key={0}>
         <th style={{width: "20%"}}>ID</th>
@@ -255,6 +247,61 @@ class EventTableRow extends React.Component{
           <button className='btn' style={{maxHeight:35}}><i class="bi bi-trash3"/></button>
           {this.props.edit_id == this.props.data["ID"]?<button className='btn btn-success'>Confirm</button>:<></>}
           {this.props.edit_id == this.props.data["ID"]?<button className='btn btn-danger' onClick={() => this.props.edit(undefined)} style={{marginLeft:2, marginBottom:4}}>Cancel</button>:<></>}
+          </th>
+      </tr>
+    )
+  }
+}
+
+class AccountTable extends React.Component{
+  constructor(props){
+    super(props);
+    this.state = {
+      accounts: []
+    };
+  }
+
+  async componentDidMount() {
+    try {
+      const response = await fetch('http://localhost:3000/account/all', {
+        method: 'GET'
+      });
+      const data = await response.json();
+      console.log(data);
+      this.setState({ accounts: data });
+    } catch (error) {
+      // Handle any errors from the async operation
+      console.error('Error fetching data:', error);
+    }
+  }
+
+  render() {
+    return(<table id='account' className="table" style={{backgroundColor: "#F4976C"}}>
+      <thead>
+        <tr>
+          <th style={{width: "20%"}}>Username</th>
+          <th style={{width: "20%"}}>Password</th>
+          <th style={{width: "20%"}}>Account Type</th>
+          <th style={{width: "20%"}}>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {this.state.accounts.map((data) => <AccountTableRow data={data}/>)}
+      </tbody>
+  </table>)
+  }
+}
+
+class AccountTableRow extends React.Component{
+  render(){
+    return (
+      <tr>
+        <th>{this.props.data["ID"]}</th>
+        <th>{this.props.data["password"]}</th>
+        <th>{this.props.data["isAdmin"]? 'Admin' : 'User'}</th>
+        <th>
+          <button className='btn' style={{maxHeight:35}}><i class="bi bi-pencil-square"/></button>
+          <button className='btn' style={{maxHeight:35}}><i class="bi bi-trash3"/></button>
           </th>
       </tr>
     )
