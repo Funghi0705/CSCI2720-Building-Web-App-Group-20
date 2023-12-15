@@ -23,6 +23,20 @@ Date : 6/12/2023
 
 
 * Commands to start the server:
+Server side set up:
+1. cd[/path_to]/server
+2. npm install express cors mongoose
+3. node server.js
 
+Client side set up:
+1. cd[/path_to]/front-end
+2. npm install react react-dom react-scripts
+3. npm install react-router-dom
+4. npm install leaflet react-leaflet react-leaflet-cluster
+5. npm install jquery
+6. npm start
+7. Y (to switch to port 3001)
 
 * Site URL:
+server side: localhost:3000
+client side: localhost:3001
