@@ -16,7 +16,3 @@ concept: https://www.w3schools.com/howto/howto_js_slideshow.asp
 3. https://www.google.com/search?q=Hong+Kong+Cultural+Centre&sca_esv=590909283&tbm=isch&sxsrf=AM9HkKl8YfK7etK4LZfc0MseWzJpz_U5kw:1702568358492&source=lnms&sa=X&ved=2ahUKEwjsvdqxoY-DAxW-p1YBHZCGA-AQ_AUoAnoECAEQBA&biw=1146&bih=602&dpr=1.25#imgrc=A7H3cCDlhVtQfM
 4. https://www.google.com/search?q=%E9%A6%99%E6%B8%AF%E7%A7%91%E5%AD%B8%E9%A4%A8&sca_esv=590909283&tbm=isch&sxsrf=AM9HkKnSkSb1lUCXcjyO2U1iXNiGrHaC2g:1702568187650&source=lnms&sa=X&ved=2ahUKEwjq4Z7goI-DAxUf2jQHHTorAfIQ_AUoAnoECAUQBA&biw=1146&bih=602&dpr=1.25#imgrc=PxyBrjiqXMzb1M
 5. https://www.google.com/search?q=%E9%A6%99%E6%B8%AF%E9%9B%BB%E5%BD%B1%E8%B3%87%E6%96%99%E9%A4%A8&tbm=isch&ved=2ahUKEwios6-soY-DAxUIr1YBHWIoB5MQ2-cCegQIABAA&oq=%E9%A6%99%E6%B8%AF%E9%9B%BB%E5%BD%B1%E8%B3%87%E6%96%99%E9%A4%A8&gs_lcp=CgNpbWcQAzIFCAAQgAQyBQgAEIAEMgcIABCABBAYMgcIABCABBAYMgcIABCABBAYMgcIABCABBAYMgcIABCABBAYMgcIABCABBAYMgcIABCABBAYMgcIABCABBAYOgQIIxAnUIEDWIEDYM4JaABwAHgAgAFEiAF8kgEBMpgBAKABAaoBC2d3cy13aXotaW1nwAEB&sclient=img&ei=myF7Zej5EYje2roP4tCcmAk&bih=602&biw=1146#imgrc=PjVtLR4ucNc84M
-
-To do list:
-1. Need to cooperate with backend once they are ready
-2. Need to add a xml retrieve function in class App according to backend
