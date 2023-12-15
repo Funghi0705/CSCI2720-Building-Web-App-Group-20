@@ -27,45 +27,55 @@ const fakeData_Event = [{"ID":1,"name":"Errol","price":32,"quota":45},
 {"ID":10,"name":"Glenn","price":86,"quota":74}]
 
 const fakeData_User = [{
-  "id": 1,
-  "username": "scardenosa0",
-  "password": "lP8`u(c6Ym(hHM"
+  "ID": 1,
+  "username": "lfeary0",
+  "password": "sM9>?S_LN",
+  "isAdmin": false
 }, {
-  "id": 2,
-  "username": "dkilbane1",
-  "password": "wC8(R5T@Cb"
+  "ID": 2,
+  "username": "ecoan1",
+  "password": "kD0!T=yOzH*3t?o",
+  "isAdmin": false
 }, {
-  "id": 3,
-  "username": "wfillon2",
-  "password": "gA0{1pX0Q5Y0U"
+  "ID": 3,
+  "username": "kcroux2",
+  "password": "sA4|Z6<ur~0&}%",
+  "isAdmin": true
 }, {
-  "id": 4,
-  "username": "asnowling3",
-  "password": "cD8$F26Z"
+  "ID": 4,
+  "username": "mwolfenden3",
+  "password": "aW2<HRqEa8iw~4~",
+  "isAdmin": false
 }, {
-  "id": 5,
-  "username": "gburdett4",
-  "password": "cD0#gq@fU9!tR/5"
+  "ID": 5,
+  "username": "lwilcock4",
+  "password": "rW5\\/~%T+ad!uX6O",
+  "isAdmin": false
 }, {
-  "id": 6,
-  "username": "smcnay5",
-  "password": "sE5$)92k*x"
+  "ID": 6,
+  "username": "fsanchis5",
+  "password": "qX0)tOHY",
+  "isAdmin": true
 }, {
-  "id": 7,
-  "username": "lkinneir6",
-  "password": "uN7>17SKiQR/"
+  "ID": 7,
+  "username": "vdaulton6",
+  "password": "pQ5@kQ)j8tM8",
+  "isAdmin": true
 }, {
-  "id": 8,
-  "username": "rpelfer7",
-  "password": "pS5(tg772PbJ{i/"
+  "ID": 8,
+  "username": "cbollen7",
+  "password": "yG1.4$S5Iknm\"th",
+  "isAdmin": false
 }, {
-  "id": 9,
-  "username": "cwinspear8",
-  "password": "zK4#2WB/Eo+\\V.s"
+  "ID": 9,
+  "username": "avasilchikov8",
+  "password": "uL0|S6/qQ{lWH",
+  "isAdmin": true
 }, {
-  "id": 10,
-  "username": "rminnis9",
-  "password": "rU8{`e(zD(X6/pu"
+  "ID": 10,
+  "username": "ebyles9",
+  "password": "rR9+xqh5D+i~",
+  "isAdmin": false
 }]
 
 export default class Admin extends React.Component{
@@ -102,17 +112,17 @@ class NavTable extends React.Component{
   render() {
     return (
       <div className='container'>
-      <nav className="navbar navbar-expand-lg navbar-light justify-content-center" style={{backgroundColor: "#D2FDFF"}}>
-        <ul className='navbar-nav flex-row'>
-          <li className='nav-item active'>
+      <nav className="navbar navbar-expand-lg navbar-light justify-content-center" style={{backgroundColor: "#D2FDFF", borderTopRightRadius:20, borderTopLeftRadius:20}}>
+        <ul className='navbar-nav flex-row' style={{backgroundColor: "#D2FDFF"}}>
+          <li className='nav-item active' style={{backgroundColor: "#D2FDFF"}}>
             <a className='nav-link' href='#event' style={this.state.viewEvent?{fontWeight: "bolder", color: "Highlight"}:{fontWeight: "bolder"}} onClick={() => this.setState({viewEvent: true})}>Events</a>
           </li>
-          <li className='nav-item active' style={{marginLeft: "10vw"}}>
+          <li className='nav-item active' style={{marginLeft: "10vw", backgroundColor: "#D2FDFF"}}>
             <a className='nav-link' href='#user' style={!this.state.viewEvent?{fontWeight: "bolder", color: "Highlight"}:{fontWeight: "bolder"}} onClick={() => this.setState({viewEvent: false})}>Users</a>
           </li>
         </ul>
       </nav>
-        {this.state.viewEvent ? <EventTable /> : <AccountTable />}
+        {this.state.viewEvent ? <EventTable /> : <UserTable />}
       </div>
     )
   }
@@ -122,11 +132,30 @@ class UserTable extends React.Component{
 
   constructor(props) {
     super(props);
-    this.state = {edit: undefined, add:false};
+    this.state = {edit: undefined, add:false, accounts:undefined};
   }
 
   editHandle = (ID) => {
-    this.setState({edit:ID})
+    this.setState({edit:ID, add:false})
+  }
+
+  addHandle = () => {
+    this.setState({add:true, edit:undefined})
+  }
+
+  async componentDidMount() {
+    try {
+      const response = await fetch('http://localhost:3000/account/all', {
+        method: 'GET'
+      });
+      const data = await response.json();
+      console.log(data);
+      this.setState({ accounts: data });
+    } catch (error) {
+      // Handle any errors from the async operation
+      console.error('Error fetching data:', error);
+      this.setState({ accounts: fakeData_User });
+    }
   }
 
   render() {
@@ -136,31 +165,54 @@ class UserTable extends React.Component{
         <th style={{width: "20%"}}>ID</th>
         <th style={{width: "20%"}}>Username</th>
         <th style={{width: "20%"}}>Password</th>
-        <th style={{width: "20%"}}><button className='btn btn-info' style={{paddingTop:0, paddingBottom:0}} onClick={() => this.setState({add:true})}><i class="bi bi-plus-square" style={{marginRight:4}}></i>Add</button></th>
+        <th style={{width: "15%"}}>Account Type</th>
+        <th style={{width: "25%"}}><button className='btn btn-info' style={{paddingTop:0, paddingBottom:0}} onClick={this.addHandle}><i class="bi bi-plus-square" style={{marginRight:4}}></i>Add</button></th>
       </tr>
       </thead>
       <tbody>
       {this.state.add?
           <AddUser Cancel={() => this.setState({add:false})}/>
         :<></>}
-        {fakeData_User.map((data) => <UserTableRow data={data} edit_id={this.state.edit} edit={this.editHandle}/>)}
+        {fakeData_User.map((data, i) => <UserTableRow i={i} data={data} edit_id={this.state.edit} edit={this.editHandle}/>)}
       </tbody>
   </table>)
   }
 }
 
 class UserTableRow extends React.Component{
+
+  constructor(props) {
+    super(props);
+    this.state = {usernameInput: undefined,
+                  passwordInput: undefined};
+  }
+
+  handleCancel = () => {
+    this.setState({usernameInput: undefined,
+      passwordInput: undefined})
+    this.props.edit(undefined)
+  }
+
   render(){
     return (
-      <tr key={this.props.data["id"]}>
-        <th>{this.props.data["id"]}</th>
-        <th>{this.props.edit_id == this.props.data["id"]?<input placeholder={this.props.data["username"]}></input>:this.props.data["username"]}</th>
-        <th>{this.props.edit_id == this.props.data["id"]?<input placeholder={this.props.data["password"]}></input>:this.props.data["password"]}</th>
+      <tr key={this.props.i + 1}>
+        <th>{this.props.i + 1}</th>
+        <th>{this.props.edit_id == this.props.data["ID"]?
+              <input placeholder={this.props.data["username"]}
+              value = {this.state.usernameInput}
+              onChange={(e) => this.setState({usernameInput: e.target.value})}></input>:
+              this.props.data["username"]}</th>
+        <th>{this.props.edit_id == this.props.data["ID"]?
+              <input placeholder={this.props.data["password"]}
+              value = {this.state.passwordInput}
+              onChange={(e) => this.setState({passwordInput: e.target.value})}></input>:
+              this.props.data["password"]}</th>
+        <th>{this.props.data["isAdmin"]? 'Admin' : 'User'}</th>
         <th>
-          <button className='btn' style={{maxHeight:35}} onClick={() => this.props.edit(this.props.data["id"])}><i class="bi bi-pencil-square"/></button>
+          <button className='btn' style={{maxHeight:35}} onClick={() => this.props.edit(this.props.data["ID"])}><i class="bi bi-pencil-square"/></button>
           <button className='btn' style={{maxHeight:35}}><i class="bi bi-trash3"/></button>
-          {this.props.edit_id == this.props.data["id"]?<button className='btn btn-success'>Confirm</button>:<></>}
-          {this.props.edit_id == this.props.data["id"]?<button className='btn btn-danger' onClick={() => this.props.edit(undefined)} style={{marginLeft:2, marginBottom:4}}>Cancel</button>:<></>}
+          {this.props.edit_id == this.props.data["ID"]?<button className='btn btn-success'>Confirm</button>:<></>}
+          {this.props.edit_id == this.props.data["ID"]?<button className='btn btn-danger' onClick={this.handleCancel} style={{marginLeft:2, marginBottom:4}}>Cancel</button>:<></>}
           </th>
       </tr>
     )
@@ -175,18 +227,22 @@ class EventTable extends React.Component{
   }
 
   editHandle = (ID) => {
-    this.setState({edit:ID})
+    this.setState({edit:ID, add: false})
+  }
+
+  addHandle = () => {
+    this.setState({edit:undefined, add: true})
   }
 
   render() {
     return(<table className="table" style={{backgroundColor: "#F4976C"}}>
       <thead>
       <tr key={0}>
-        <th style={{width: "20%", cursor: "pointer"}}>ID</th>
+        <th style={{width: "15%", cursor: "pointer"}}>ID</th>
         <th style={{width: "20%", cursor: "pointer"}}>Name</th>
         <th style={{width: "20%", cursor: "pointer"}}>Price</th>
         <th style={{width: "20%", cursor: "pointer"}}>Quota</th>
-        <th style={{width: "20%"}}><button className='btn btn-info' style={{paddingTop:0, paddingBottom:0}} onClick={() => this.setState({add:true})}><i class="bi bi-plus-square" style={{marginRight:4}}></i>Add</button></th>
+        <th style={{width: "25%"}}><button className='btn btn-info' style={{paddingTop:0, paddingBottom:0}} onClick={this.addHandle}><i class="bi bi-plus-square" style={{marginRight:4}}></i>Add</button></th>
 
       </tr>
       </thead>
@@ -201,12 +257,24 @@ class EventTable extends React.Component{
 }
 
 class AddUser extends React.Component{
+
+  constructor(props) {
+    super(props);
+    this.state = {usernameInput: undefined,
+                  passwordInput: undefined,
+                  isAdmin: undefined};
+  }
+
   render(){
     return(
       <tr key={"new"}>
       <th>New</th>
       <th><input></input></th>
       <th><input></input></th>
+      <th><select name='isAdmin' id='isAdmin'>
+        <option value="User">User</option>
+        <option value="Admin">Admin</option>
+        </select></th>
       <th>
         <button className='btn btn-success'>Confirm</button>
         <button className='btn btn-danger' style={{marginLeft:2, marginBottom:4}} onClick={this.props.Cancel}>Cancel</button>
@@ -217,13 +285,42 @@ class AddUser extends React.Component{
 }
 
 class AddEvent extends React.Component{
+
+  constructor(props) {
+    super(props);
+    this.state = {eventNameInput: undefined,
+                  eventPriceInput: undefined, 
+                  eventQuotaInput: undefined};
+  }
+
+  handleInput = (e) => {
+    if (e.target.value < 0 || isNaN(e.target.value)) {
+      this.setState({eventPriceInput: 0})
+    } else {
+      this.setState({eventPriceInput: e.target.value})
+    }
+  }
+
+  handleQuotaInput = (e) => {
+    if (e.target.value < 0 || isNaN(e.target.value)) {
+      this.setState({eventQuotaInput: 0})
+    } else {
+      this.setState({eventQuotaInput: e.target.value})
+    }
+  }
+
+
+
   render(){
     return(
       <tr key={"new"}>
         <th>New</th>
-        <th><input></input></th>
-        <th><input></input></th>
-        <th><input></input></th>
+        <th><input id='eventNameInput' value={this.state.eventNameInput}
+                    onChange={(e) => this.setState({eventNameInput : e.target.value})}></input></th>
+        <th>$<input id='eventPriceInput' value={this.state.eventPriceInput}
+                    onChange={(e) => this.handlePriceInput(e)}></input></th>
+        <th><input id='eventQuotaInput' value={this.state.eventQuotaInput}
+                    onChange={(e) => this.handleQuotaInput(e)}></input></th>
         <th>
           <button className='btn btn-success'>Confirm</button>
           <button className='btn btn-danger' style={{marginLeft:2, marginBottom:4}} onClick={this.props.Cancel}>Cancel</button>
@@ -235,73 +332,58 @@ class AddEvent extends React.Component{
 
 class EventTableRow extends React.Component{
 
+  constructor(props) {
+    super(props);
+    this.state = {eventNameInput: undefined,
+                  eventPriceInput: undefined, 
+                  eventQuotaInput: undefined};
+  }
+
+  handlePriceInput = (e) => {
+    if (e.target.value < 0 || isNaN(e.target.value)) {
+      this.setState({eventPriceInput: 0})
+    } else {
+      this.setState({eventPriceInput: e.target.value})
+    }
+  }
+
+  handleQuotaInput = (e) => {
+    if (e.target.value < 0 || isNaN(e.target.value)) {
+      this.setState({eventQuotaInput: 0})
+    } else {
+      this.setState({eventQuotaInput: e.target.value})
+    }
+  }
+
+  handleCancel = () => {
+    this.setState({eventNameInput: undefined,
+      eventPriceInput: undefined, 
+      eventQuotaInput: undefined})
+    this.props.edit(undefined)
+  }
+
   render(){
     return (
       <tr key={this.props.data["ID"]}>
         <th>{this.props.data["ID"]}</th>
-        <th>{this.props.edit_id == this.props.data["ID"]?<input placeholder={this.props.data["name"]}></input>:this.props.data["name"]}</th>
-        <th>${this.props.edit_id == this.props.data["ID"]?<input placeholder={this.props.data["price"]}></input>:this.props.data["price"]}</th>
-        <th>{this.props.edit_id == this.props.data["ID"]?<input placeholder={this.props.data["quota"]}></input>:this.props.data["quota"]}</th>
+        <th>{this.props.edit_id == this.props.data["ID"]?
+              <input placeholder={this.props.data["name"]} value={this.props.eventNameInput}></input>:
+              this.props.data["name"]}</th>
+        <th>${this.props.edit_id == this.props.data["ID"]?
+              <input placeholder={this.props.data["price"]}
+              value={this.state.eventPriceInput}
+              onChange={(e) => this.handlePriceInput(e)}></input>:
+              this.props.data["price"]}</th>
+        <th>{this.props.edit_id == this.props.data["ID"]?
+              <input placeholder={this.props.data["quota"]}
+              value={this.state.eventQuotaInput}
+              onChange={(e) => this.handleQuotaInput(e)}></input>:
+              this.props.data["quota"]}</th>
         <th>
           <button className='btn' style={{maxHeight:35}} onClick={() => this.props.edit(this.props.data["ID"])}><i class="bi bi-pencil-square"/></button>
           <button className='btn' style={{maxHeight:35}}><i class="bi bi-trash3"/></button>
           {this.props.edit_id == this.props.data["ID"]?<button className='btn btn-success'>Confirm</button>:<></>}
-          {this.props.edit_id == this.props.data["ID"]?<button className='btn btn-danger' onClick={() => this.props.edit(undefined)} style={{marginLeft:2, marginBottom:4}}>Cancel</button>:<></>}
-          </th>
-      </tr>
-    )
-  }
-}
-
-class AccountTable extends React.Component{
-  constructor(props){
-    super(props);
-    this.state = {
-      accounts: []
-    };
-  }
-
-  async componentDidMount() {
-    try {
-      const response = await fetch('http://localhost:3000/account/all', {
-        method: 'GET'
-      });
-      const data = await response.json();
-      console.log(data);
-      this.setState({ accounts: data });
-    } catch (error) {
-      // Handle any errors from the async operation
-      console.error('Error fetching data:', error);
-    }
-  }
-
-  render() {
-    return(<table id='account' className="table" style={{backgroundColor: "#F4976C"}}>
-      <thead>
-        <tr>
-          <th style={{width: "20%"}}>Username</th>
-          <th style={{width: "20%"}}>Password</th>
-          <th style={{width: "20%"}}>Account Type</th>
-          <th style={{width: "20%"}}>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        {this.state.accounts.map((data) => <AccountTableRow data={data}/>)}
-      </tbody>
-  </table>)
-  }
-}
-
-class AccountTableRow extends React.Component{
-  render(){
-    return (
-      <tr>
-        <th>{this.props.data["ID"]}</th>
-        <th>{this.props.data["password"]}</th>
-        <th>{this.props.data["isAdmin"]? 'Admin' : 'User'}</th>
-        <th>
-          <button className='btn' style={{maxHeight:35}}><i class="bi bi-pencil-square"/></button>
-          <button className='btn' style={{maxHeight:35}}><i class="bi bi-trash3"/></button>
+          {this.props.edit_id == this.props.data["ID"]?<button className='btn btn-danger' onClick={this.handleCancel} style={{marginLeft:2, marginBottom:4}}>Cancel</button>:<></>}
           </th>
       </tr>
     )

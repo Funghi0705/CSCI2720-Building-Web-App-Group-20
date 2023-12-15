@@ -39,7 +39,7 @@
     });
     
     // Since other part is not set up yet, testing variable are declared here
-    let isAdmin = false;
+    let isAdmin = true;
     let username = "tester1";
     const event = [
       {eventId: 1, title: "event1", venue: "SHB", dateortime: "6/12/2023", description: "This is a testing event!", presenter:"Sam", price:100},
