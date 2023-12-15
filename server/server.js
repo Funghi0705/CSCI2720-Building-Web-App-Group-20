@@ -83,7 +83,18 @@ const EventSchema = mongoose.Schema({
     }    
   },
   // An array of ObjectId references that refer to documents in the Location collection
-  locationID: { type: Number },
+  locationID: {
+    type: Number
+  },
+  dateTime: {
+    type: String
+  },
+  description: {
+    type: String
+  },
+  presenter: {
+    type: String
+  }
 });
 
 const LocationSchema = mongoose.Schema({

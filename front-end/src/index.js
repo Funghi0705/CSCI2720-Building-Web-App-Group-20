@@ -261,8 +261,17 @@
         this.setState({ output: sortedLoc });
       };
     
-      componentDidMount() {
+      async componentDidMount() {
         this.filterAndSortData();
+
+        console.log('yeaah');
+        const response = await fetch('https://www.lcsd.gov.hk/datagovhk/event/events.xml', {
+          method: 'GET'
+        });
+        console.log(response? 'yes': 'no');
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(await response.body,"text/xml");
+        console.log(xmlDoc);
       }
     
       componentDidUpdate(prevProps, prevState) {
