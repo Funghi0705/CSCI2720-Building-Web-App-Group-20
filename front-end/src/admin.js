@@ -347,7 +347,7 @@ class AddUser extends React.Component{
       const data = {
         username: this.state.usernameInput,
         password: this.state.passwordInput,
-        isAdmin: this.state.isAdmin
+        isAdmin: this.state.isAdmin === 'true'
       };
 
       const respond = await fetch('http://localhost:3000/account/create', {

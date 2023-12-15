@@ -69,6 +69,7 @@
           favloc: favloc,
           lastUpdate: lastUpdate,
           login: loginState,
+          ID: 0
         };
       }
 
@@ -82,7 +83,7 @@
 
       // when login, update the last update time and date
       handleLogin = (input) => {
-        this.setState({ login: true, lastUpdate: new Date().toLocaleString(), isAdmin: input});
+        this.setState({ login: true, lastUpdate: new Date().toLocaleString(), isAdmin: input.isAdmin, ID: input.ID});
       }
 
       render(){

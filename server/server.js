@@ -190,7 +190,8 @@ db.once('open', async function () {
       console.log(req.body);
       const schema = req.params.schema;
       const Collection = SchemaToCollection[req.params.schema];
-
+      console.log(schema === 'account');
+      console.log(!req.body.isAdmin);
       if (schema === 'account') {
         if (!req.body.isAdmin) {
           // retrive the last user ID
@@ -200,10 +201,12 @@ db.once('open', async function () {
           // create a new user
           const newUser = new User({
             ID: ID,
-            username: req.body.ID,
+            username: req.body.username,
             commentIDs: [],
             favouriteIDs: []
           });
+          console.log(newUser);
+          await newUser.save();
         }
       }
       
@@ -286,7 +289,7 @@ db.once('open', async function () {
       let data;
       if (!req.body.isAdmin) {
         const accountHolder = await User.findOne({username: username});
-        data = accountHolder.ID;
+        data = {ID: accountHolder.ID};
       }
 
       res.setHeader('Content-Type', 'application/json');
@@ -338,7 +341,13 @@ db.once('open', async function () {
     try{
       const criterion = {ID: req.body.ID};
       const Collection = SchemaToCollection[req.params.schema];
+
+      if (req.params.schema === 'account') {
+        const account = await Collection.findOne(criterion);
+        await User.findOneAndDelete({username: account.username});
+      }
       const deletedDocument = await Collection.findOneAndDelete(criterion);
+
       res.setHeader('Content-Type', 'application/json');
       res.send({success: true, data: deletedDocument});
     }
