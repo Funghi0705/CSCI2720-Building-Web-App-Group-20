@@ -271,12 +271,10 @@ db.once('open', async function () {
   // Otherwise, return the reason for unsuccessful login
   app.post('/login', async (req, res) => {
     try{
-      const ID = req.body.ID;
+      const username = req.body.username;
       const password = req.body.password;
-      
-      //console.log();
 
-      const account = await Account.findOne({ID: ID});
+      const account = await Account.findOne({username: username});
       if (!account) {
         throw new Error('Username does not exist.');
       }
@@ -285,9 +283,9 @@ db.once('open', async function () {
       }
 
       // return user ID for user login
-      let data = '';
+      let data;
       if (!req.body.isAdmin) {
-        const accountHolder = await User.findOne({ID: ID});
+        const accountHolder = await User.findOne({username: username});
         data = accountHolder.ID;
       }
 

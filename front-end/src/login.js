@@ -23,14 +23,14 @@ class LoginForm extends React.Component{
     constructor(props) {
         super(props);
         this.state = {
-            ID: '',
+            username: '',
             password: '',
             isAdmin: undefined,
         };
     }
 
-    inputID = (e) => {
-        this.setState({ID: e.target.value})
+    inputUsername = (e) => {
+        this.setState({username: e.target.value})
     }
 
     inputPassword = (e) => {
@@ -43,6 +43,7 @@ class LoginForm extends React.Component{
 
     handleSubmit = async (e) => {
         e.preventDefault();
+        console.log(this.state);
         // document.getElementById("loginForm").requestSubmit();
         // if (this.state.isAdmin !== undefined) {
         //     this.props.updateLogin(true, this.state.isAdmin);
@@ -71,7 +72,7 @@ class LoginForm extends React.Component{
                     <div class="form-group row">
                         <label for="inputUsername" class="col-sm-4 col-form-label">Username :</label>
                         <div class="col-sm-7">
-                            <input type="text" class="form-control" id="inputUsername" placeholder="Username" value={this.state.ID} onChange={this.inputID} required/>
+                            <input type="text" class="form-control" id="inputUsername" placeholder="Username" value={this.state.username} onChange={this.inputUsername} required/>
                         </div>
                     </div>
                     <div class="form-group row" style={{marginTop: 20}}>
