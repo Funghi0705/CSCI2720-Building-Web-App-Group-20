@@ -9,8 +9,14 @@ const mongoose = require('mongoose');
 
 
 // Schema Definition
+// If ID = 0 for any document, it means not assigned
 const AccountSchema = mongoose.Schema({
   ID: {
+    type: Number,
+    required: true,
+    unique: true
+  },
+  username: {
     type: String,
     required: true,
     unique: true
@@ -100,8 +106,8 @@ const LocationSchema = mongoose.Schema({
         }    
     },
     eventID: { type: Number },
-    comment: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }],
-    favourite: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Favourite' }]
+    commentIDs: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }],
+    favouriteIDs: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Favourite' }]
 });
 
 const CommentSchema = mongoose.Schema({
@@ -114,8 +120,8 @@ const CommentSchema = mongoose.Schema({
       type: String,
       required: true,
   },
-  author: {
-    type: String,
+  userID: {
+    type: Number,
     required: true,
   },
   locationID: {
@@ -166,15 +172,6 @@ const SchemaToCollection = {
   favourite: Favourite
 };
 
-const SchemaToID = {
-  account: 'username',
-  user: 'userID',
-  event: 'eventID',
-  location: 'locationID',
-  comment: 'commentID',
-  favourite: 'favouriteID'
-};
-
 // connect to MongoDB
 mongoose.connect('mongodb://127.0.0.1:27017/project');
 const db = mongoose.connection;
@@ -193,10 +190,8 @@ db.once('open', async function () {
       console.log(req.body);
       const schema = req.params.schema;
       const Collection = SchemaToCollection[req.params.schema];
-      const newDocument = new Collection(req.body);
-      await newDocument.save();
 
-      if (schema == 'account') {
+      if (schema === 'account') {
         if (!req.body.isAdmin) {
           // retrive the last user ID
           const lastUser = await User.find().sort({ID: -1}).findOne();
@@ -211,11 +206,31 @@ db.once('open', async function () {
           });
         }
       }
+      
+      const lastDocument = await Collection.find().sort({ID: -1}).findOne();
+      const ID = lastDocument ? lastDocument.ID + 1 : 1;
+      const newDocument = new Collection({
+        ...req.body,
+        ID: ID
+      });
 
-      res.send(newDocument);
+      if(schema === 'event') {
+        newDocument['locationID'] = 0;
+      }
+      else if (schema === 'location') {
+        newDocument['eventID'] = 0;
+        newDocument['commentIDs'] = [];
+        newDocument['favouriteIDs'] = [];
+      }
+      
+      
+      await newDocument.save();
+
+      res.setHeader('Content-Type', 'application/json');
+      res.send({success: true, data: newDocument});
     }
     catch (error) {
-      res.send(error.message);
+      res.send({success: false, data: error.message});
     }
   });
 
@@ -227,11 +242,12 @@ db.once('open', async function () {
       const Collection = SchemaToCollection[req.params.schema];
       const allDocuments = await Collection.find();
       res.setHeader('Content-Type', 'application/json');
-      res.send(allDocuments);
+      res.send({success: true, data: allDocuments});
     }
     catch (error) {
       res.status(404);
-      res.send(`Error getting Documents.`);
+      res.setHeader('Content-Type', 'application/json');
+      res.send({success: false, data: `Error getting Documents.`});
     }
   });
 
@@ -287,26 +303,30 @@ db.once('open', async function () {
   // CRUD - Update
 
   // Update data for an account
-  app.post('/update/:schema', async (req, res) => {
+  app.post('/:schema/update', async (req, res) => {
     try{
       const Collection = SchemaToCollection[req.params.schema];
       const findID = req.body.ID;
       console.log('Update ' + req.params.schema);
+      console.log(req.body);
       Collection.findOneAndUpdate(
         {ID: { $eq: findID }},
-        {$set: req.body}
+        {$set: req.body},
+        {new: true}
       )
       .then((data) => {
-        console.log("Your" + req.params.schema + "is updated");
+          res.setHeader('Content-Type', 'application/json');
+          res.send({success: true, data: data});
       })
       .catch((error) => {
-        console.log("Failed");
-        throw new Error("Failed");
+          console.log("Failed");
+          throw new Error("Failed");
       });
     }
     catch (error) {
+      res.setHeader('Content-Type', 'application/json');
       res.status(404);
-      res.send(error.message);
+      res.send({success: false, data: error.message});
     }
   });
 
@@ -318,15 +338,15 @@ db.once('open', async function () {
   // CRUD - Delete
   app.post('/:schema/delete', async (req, res) => {
     try{
-      const criterion = req.body;
+      const criterion = {ID: req.body.ID};
       const Collection = SchemaToCollection[req.params.schema];
-      await Collection.findOneAndDelete(criterion);
-      res.setHeader('Content-Type', 'text/plain');
-      res.send(requestedDocuments);
+      const deletedDocument = await Collection.findOneAndDelete(criterion);
+      res.setHeader('Content-Type', 'application/json');
+      res.send({success: true, data: deletedDocument});
     }
     catch (error) {
       res.status(404);
-      res.send(`Error deleting Documents.`);
+      res.send({success: false, data: `Error deleting Documents.`});
     }
   });
 
